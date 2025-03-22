@@ -1,0 +1,12 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#messages {
+    list-style-type: none;
+}
+
+input,
+button {
+    margin: 5px;
+}
