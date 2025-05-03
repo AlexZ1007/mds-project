@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Card Game UI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
+
+  <!-- Top HUD -->
+  <div class="flex justify-between w-full max-w-4xl mb-4">
+    <div class="bg-gray-800 p-4 rounded-lg shadow-md w-1/3 text-center">
+      <h2 class="text-lg font-semibold">Opponent</h2>
+      <p class="text-2xl font-bold text-red-400" id="opponentHp">HP: 30</p>
+    </div>
+    <div class="bg-gray-800 p-4 rounded-lg shadow-md w-1/3 text-center">
+      <h2 class="text-lg font-semibold">You</h2>
+      <p class="text-2xl font-bold text-green-400" id="playerHp">HP: 30</p>
+    </div>
+  </div>
+
+  <div id="canvas-wrapper" class="mb-6"></div>
+  <!-- Canvas Area -->
+  <!-- <canvas id="gameCanvas" width="800" height="400" class="bg-gray-700 rounded-lg shadow-lg mb-6"></canvas> -->
+
+  <!-- End Round Button -->
+  <button id="endRoundBtn" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg text-lg shadow-md transition">
+    End Round
+  </button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/game.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <script src="/js/p5game.js"></script>
+
+</body>
+</html>
