@@ -1,7 +1,6 @@
 class Card{
 
-    constructor(cardId, cardName, description, manaPoints, healthPoints, attackPoints, ability, imageUrl){
-        this.cardId = cardId;
+    constructor(cardName, description, manaPoints, healthPoints, attackPoints, ability, imageUrl){
         this.cardName = cardName;
         this.description = description;
         this.manaPoints = manaPoints;
@@ -11,6 +10,6 @@ class Card{
         this.imageUrl = imageUrl;
     }
 
-    
-
 }
+
+module.exports = Card;

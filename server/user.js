@@ -7,6 +7,7 @@ class User{
         this.matches_played = 0;
         this.password = password;
         this.email = email;
+        this.cards = [];
     };
 
     static validatePassword(password, bcrypt) {
