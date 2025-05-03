@@ -5,7 +5,6 @@ const { registerGameEvents } = require("./gamesockets");
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
 const regMenu = require("./server/registerMenu");
 const connection = require("./server/database");
 
