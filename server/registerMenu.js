@@ -23,7 +23,7 @@ function RegMenu(app) {
     app.post('/login', async (req, res) => {
         const { username, password } = req.body;
         try {
-            const user = auth.login(username, password);
+            const user = await auth.login(username, password);
             const token = jwt.sign({ username: user.username }, SECRET, { expiresIn: '1h' });
             res.status(201).json({ message: 'Login successful', token });
         } catch (e) {

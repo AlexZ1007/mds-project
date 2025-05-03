@@ -55,7 +55,32 @@ class authService {
         throw new Error('Password is incorrect');
     }
 
-    console.log(user);
+    const cardStats = await new Promise((resolve, reject) => {
+      connection.query(
+        'SELECT u.card_ID, u.card_count, c.level, c.card_name, c.description, c.mana_points, c.HP_points, c.ability, c.card_image, c.damage FROM User_Cards u  JOIN Card c ON u.card_ID = c.card_ID WHERE user_ID = ?',
+        [user.user_ID],
+        (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        }
+      );
+    });
+
+    user.cards =  cardStats.map(row => ({
+      card: {
+        card_id: row.card_ID,
+        name: row.card_name,
+        description: row.description,
+        ability: row.ability,
+        mana_points: row.mana_points,
+        HP_points: row.HP_points,
+        damage: row.damage,
+        card_image: row.card_image
+      },
+      card_count: row.card_count,
+      level: row.level
+    }));
+    console.log(user.cards[0]);
     return user;
   }
 }
