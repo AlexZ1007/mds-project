@@ -3,7 +3,8 @@ const http = require("http");
 const { Server } = require("socket.io");
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const regMenu = require("./server/registerMenu");
+const connection = require("./server/database");
 const server = http.createServer(app);
 const io = new Server(server);
 
@@ -14,7 +15,7 @@ io.on("connection", (socket) => {
 
     socket.on("message", (data) => {
         console.log("Message from client:", data);
-        io.emit("message", data);  // Broadcast to all clients
+        io.emit("message", data);  
     });
 
     socket.on("disconnect", () => {
@@ -25,3 +26,20 @@ io.on("connection", (socket) => {
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
+// $query = "select * from Account"
+// connection.query($query, function(err, rows, fields){
+//     if (err){
+//         console.log(err);
+//         return;
+//     }
+
+//     console.log("Querry succesful");
+// })
+
+// connection.end(function(){
+//     console.log("Connection ended");
+// })
+
+regMenu(app); 
