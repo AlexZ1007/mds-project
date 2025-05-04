@@ -36,7 +36,7 @@ class authService {
     // Get the user ID of the newly created user
     const result = await new Promise((resolve, reject) => {
       connection.query(
-        'SELECT user_ID FROM User WHERE nickname = ?',
+        'SELECT user_id FROM User WHERE nickname = ?',
         [nickname],
         (err, results) => {
           if (err) return reject(err);
@@ -72,8 +72,8 @@ class authService {
 
     const cardStats = await new Promise((resolve, reject) => {
       connection.query(
-        'SELECT u.card_ID, u.card_count, c.level, c.card_name, c.description, c.mana_points, c.HP_points, c.ability, c.card_image, c.damage FROM User_Cards u  JOIN Card c ON u.card_ID = c.card_ID WHERE user_ID = ?',
-        [user.user_ID],
+        'SELECT u.card_id, u.card_count, c.level, c.card_name, c.description, c.mana_points, c.HP_points, c.ability, c.card_image, c.damage FROM User_Cards u  JOIN Card c ON u.card_id = c.card_id WHERE user_id = ?',
+        [user.user_id],
         (err, results) => {
           if (err) return reject(err);
           resolve(results);
@@ -83,7 +83,7 @@ class authService {
 
     user.cards =  cardStats.map(row => ({
       card: {
-        card_id: row.card_ID,
+        card_id: row.card_id,
         name: row.card_name,
         description: row.description,
         ability: row.ability,
