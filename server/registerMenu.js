@@ -3,11 +3,15 @@ function RegMenu(app) {
     const cors = require('cors');
     const express = require("express");
     const jwt = require('jsonwebtoken');
-    const AuthService = require('../services/authService'); 
+
+    const AuthService = require('../services/authService');
+    const ShopService = require('../services/shopService');
+    require('dotenv').config(); 
     const authMiddleware = require('./authMiddleware');
 
+
     const auth = new AuthService();
-    const SECRET = 'super-secret-key';
+    const shop = new ShopService();
 
     app.use(cors());
     app.use(express.json());
@@ -36,22 +40,35 @@ function RegMenu(app) {
         const { username, password } = req.body;
         try {
             const user = await auth.login(username, password);
-            const token = jwt.sign({ userId: user.user_ID }, SECRET, { expiresIn: '1h' });
+
+            const token = jwt.sign({ userId: user.user_ID }, process.env.SECRET_KEY, { expiresIn: '1h' });
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'Lax',
                 maxAge: 3600000 
             });
+
             res.status(201).json({ message: 'Login successful', token });
         } catch (e) {
             res.status(401).json({ error: e.message });
         }
     });
 
+    app.post('/pack', async (req, res) => {
+        const { pack_type } = req.body;
+        try{
+            const pack = await shop.openPack(pack_type, req.user.userId);
+            res.status(202).json({ message: 'Pack opened successfully', pack });
+        }catch (e) {
+            res.status(402).json({ error: e.message });
+        }
+    });
+
     app.get('/me', authMiddleware, (req, res) => {
         res.json({ userId: req.user.userId });
       });
+
 }
 
 module.exports = RegMenu;

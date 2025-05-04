@@ -41,18 +41,4 @@ server.listen(PORT, () => {
 });
 
 
-// $query = "select * from Account"
-// connection.query($query, function(err, rows, fields){
-//     if (err){
-//         console.log(err);
-//         return;
-//     }
-
-//     console.log("Querry succesful");
-// })
-
-// connection.end(function(){
-//     console.log("Connection ended");
-// })
-
 regMenu(app); 

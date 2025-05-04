@@ -1,6 +1,7 @@
 class User{
 
-    constructor(nickname, password, email){
+    constructor(userId, nickname, password, email){
+        this.userId = userId;
         this.nickname = nickname;
         this.balance = 100;
         this.matches_won = 0;
