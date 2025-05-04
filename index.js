@@ -14,17 +14,22 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static("public"));
 
+const match_queue = [];
+const lobbies = {};
+
+
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
-  registerGameEvents(io, socket);
-
-  socket.on("message", (data) => {
-      console.log("Message from client:", data);
-      io.emit("message", data);  
-  });
+  registerGameEvents(io, socket, match_queue, lobbies);
 
 
   socket.on("disconnect", () => {
+    const index = match_queue.findIndex((item) => item.id === socket.id);
+    if (index !== -1) {
+      match_queue.splice(index, 1);
+    }
+
+    console.log("queue", match_queue);
     console.log("User disconnected:", socket.id);
   });
 });
