@@ -51,6 +51,7 @@ async function openPack(pack_type) {
   
 
   const res = await fetch('/pack', {
+    credentials: 'include',
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ pack_type: pack_type }) 

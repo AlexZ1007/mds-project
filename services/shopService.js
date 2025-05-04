@@ -27,12 +27,12 @@ class ShopService{
                 result.push(cards[randomIndex]);
             }
         }
-
-        for (var card in cards){
+        for (let card of result){
+            console.log(card);
             let exists = await new Promise((resolve, reject) => {
                 connection.query(
-                    'Select * from User_cards where user_ID = ? and card_ID = ?',
-                    [userId,card.card_ID],
+                    'Select * from User_Cards where user_id = ? and card_id = ?',
+                    [userId,card.card_id],
                     (err, results) => {
                         if (err) return reject(err);
                         resolve(results);
@@ -42,8 +42,8 @@ class ShopService{
             if (exists.length > 0){
                 await new Promise((resolve, reject) => {
                     connection.query(
-                        'UPDATE User_Cards SET card_count = card_count + 1 WHERE user_ID = ? and card_ID = ?',
-                        [userId,card.card_ID],
+                        'UPDATE User_Cards SET card_count = card_count + 1 WHERE user_id = ? and card_id = ?',
+                        [userId,card.card_id],
                         (err, results) => {
                             if (err) return reject(err);
                             resolve(results);
@@ -51,10 +51,11 @@ class ShopService{
                     );
                 });
             } else {
+                console.log(card.card_id)
                 await new Promise((resolve, reject) => {
                     connection.query(
-                        'INSERT INTO User_Cards (user_ID, card_ID, card_count) VALUES (?, ?, 1)',
-                        [userId,card.card_ID],
+                        'INSERT INTO User_Cards (user_id, card_id, card_count) VALUES (?, ?, 1)',
+                        [userId,card.card_id],
                         (err, results) => {
                             if (err) return reject(err);
                             resolve(results);
@@ -62,9 +63,7 @@ class ShopService{
                     );
                 });
             }
-
         }
-        console.log(result);
         return result;
     }
 

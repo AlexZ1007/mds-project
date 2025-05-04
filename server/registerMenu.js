@@ -21,7 +21,7 @@ function RegMenu(app) {
         const { username, password, email } = req.body;
         try {
             user = await auth.register(username, password, email);
-            const token = jwt.sign({ username: user.user_ID }, process.env.SECRET_KEY, { expiresIn: '1h' });
+            const token = jwt.sign({ username: user.user_id }, process.env.SECRET_KEY, { expiresIn: '1h' });
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: false,
@@ -41,7 +41,7 @@ function RegMenu(app) {
         try {
             const user = await auth.login(username, password);
 
-            const token = jwt.sign({ userId: user.user_ID }, process.env.SECRET_KEY, { expiresIn: '1h' });
+            const token = jwt.sign({ userId: user.user_id }, process.env.SECRET_KEY, { expiresIn: '1h' });
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: false,
@@ -55,7 +55,7 @@ function RegMenu(app) {
         }
     });
 
-    app.post('/pack', async (req, res) => {
+    app.post('/pack', authMiddleware, async (req, res) => {
         const { pack_type } = req.body;
         try{
             const pack = await shop.openPack(pack_type, req.user.userId);
