@@ -15,7 +15,7 @@ async function register() {
   if (res.status === 200) {
     messageElement.innerText = data.message;
     messageElement.style.color = 'green';
-    window.location.href='/home.html'
+    window.location.href = '/home.html'
   } else {
     messageElement.innerText = data.error;
     messageElement.style.color = 'red';
@@ -40,40 +40,33 @@ async function login() {
     messageElement.innerText = data.message;
     messageElement.style.color = 'green';
     console.log(data)
-    window.location.href='/home.html'
+    window.location.href = '/home.html'
   } else {
     messageElement.innerText = data.error;
     messageElement.style.color = 'red';
   }
 }
 
-async function openPack(pack_type) {
-  
-
+async function openPack(pack_info) {
   const res = await fetch('/pack', {
     credentials: 'include',
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pack_type: pack_type }) 
+    body: JSON.stringify({ pack_info: pack_info })
   });
-
 
   const data = await res.json();
   const packResultDiv = document.getElementById('pack-result');
 
   if (res.status === 202) {
-    packResultDiv.innerHTML = '<h3 class="text-xl font-bold mb-4">Pack Opened!</h3>';
+    packResultDiv.innerHTML = ''; // Clear previous results
     data.pack.forEach(card => {
       const cardDiv = document.createElement('div');
-      cardDiv.className = 'bg-white p-4 rounded-lg shadow mb-4';
+      cardDiv.className = 'bg-white p-6 rounded-lg shadow-lg flex flex-col items-center w-full md:w-80'; // Adjusted width for rectangle
       cardDiv.innerHTML = `
-        <h4 class="text-lg font-semibold">${card.card_id}: ${card.name}</h4>
-        <p>${card.description}</p>
-        <p><strong>Mana Points:</strong> ${card.mana_points}</p>
-        <p><strong>HP Points:</strong> ${card.HP_points}</p>
-        <p><strong>Damage:</strong> ${card.damage}</p>
-        <p><strong>Ability:</strong> ${card.ability}</p>
-        <img src="${card.card_image}" alt="${card.name}" class="w-32 h-32 mt-2">
+        <img src="${card.card_image}" alt="${card.card_name}" class="w-full mb-4"> <!-- Bigger and rectangular -->
+        <h4 class="text-lg font-semibold text-center">${card.card_name} - ${card.level} </h4> 
+        <p class="text-sm text-gray-600 text-center">${card.description}</p>
       `;
       packResultDiv.appendChild(cardDiv);
     });
