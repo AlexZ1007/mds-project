@@ -32,7 +32,22 @@ class authService {
     await connection.query('INSERT INTO User (nickname, balance, matches_played, matches_won, password, email) VALUES (?, 100, 0,0, ?, ?)',
       [nickname, hashed, email],
     );
-    return 'User registered';
+
+    // Get the user ID of the newly created user
+    const result = await new Promise((resolve, reject) => {
+      connection.query(
+        'SELECT user_ID FROM User WHERE nickname = ?',
+        [nickname],
+        (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        }
+      );
+    });
+
+
+    const user = result[0];
+    return user;
   }
 
   async login(nickname, password) {
