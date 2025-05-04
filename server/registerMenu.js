@@ -56,9 +56,9 @@ function RegMenu(app) {
     });
 
     app.post('/pack', authMiddleware, async (req, res) => {
-        const { pack_type } = req.body;
+        const { pack_info } = req.body;
         try{
-            const pack = await shop.openPack(pack_type, req.user.userId);
+            const pack = await shop.openPack(pack_info, req.user.userId);
             res.status(202).json({ message: 'Pack opened successfully', pack });
         }catch (e) {
             res.status(402).json({ error: e.message });
