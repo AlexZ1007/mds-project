@@ -30,6 +30,7 @@ async function register() {
   if (res.status === 200) {
     messageElement.innerText = data.message;
     messageElement.style.color = 'green';
+    window.location.href='/home.html'
   } else {
     messageElement.innerText = data.error;
     messageElement.style.color = 'red';
@@ -52,6 +53,8 @@ async function login() {
   if (res.status === 201) {
     messageElement.innerText = data.message;
     messageElement.style.color = 'green';
+    console.log(data)
+    window.location.href='/home.html'
   } else {
     messageElement.innerText = data.error;
     messageElement.style.color = 'red';
