@@ -2,10 +2,12 @@ function RegMenu(app) {
     const cors = require('cors');
     const express = require("express");
     const jwt = require('jsonwebtoken');
-    const AuthService = require('../services/authService'); 
+    const AuthService = require('../services/authService');
+    const ShopService = require('../services/shopService');
+    require('dotenv').config(); 
 
     const auth = new AuthService();
-    const SECRET = 'super-secret-key';
+    const shop = new ShopService();
 
     app.use(cors());
     app.use(express.json());
@@ -24,10 +26,20 @@ function RegMenu(app) {
         const { username, password } = req.body;
         try {
             const user = await auth.login(username, password);
-            const token = jwt.sign({ username: user.username }, SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ username: user.username }, process.env.SECRET_KEY, { expiresIn: '1h' });
             res.status(201).json({ message: 'Login successful', token });
         } catch (e) {
             res.status(401).json({ error: e.message });
+        }
+    });
+
+    app.post('/pack', async (req, res) => {
+        const { pack_type } = req.body;
+        try{
+            const pack = await shop.openPack(pack_type, req.user.userId);
+            res.status(202).json({ message: 'Pack opened successfully', pack });
+        }catch (e) {
+            res.status(402).json({ error: e.message });
         }
     });
 }

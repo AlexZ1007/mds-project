@@ -75,12 +75,13 @@ class authService {
         mana_points: row.mana_points,
         HP_points: row.HP_points,
         damage: row.damage,
-        card_image: row.card_image
+        card_image: row.card_image,
+        level: row.level
       },
       card_count: row.card_count,
-      level: row.level
+      
     }));
-    console.log(user.cards[0]);
+    console.log(user);
     return user;
   }
 }
