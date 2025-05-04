@@ -21,7 +21,7 @@ function RegMenu(app) {
         const { username, password, email } = req.body;
         try {
             user = await auth.register(username, password, email);
-            const token = jwt.sign({ username: user.user_ID }, SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ username: user.user_ID }, process.env.SECRET_KEY, { expiresIn: '1h' });
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: false,
