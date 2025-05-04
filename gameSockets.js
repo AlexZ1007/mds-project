@@ -1,17 +1,18 @@
 // gameSockets.js
 const { v4: uuidv4 } = require("uuid");
 
-const match_queue = [];
-const lobbies = {};
 
-function registerGameEvents(io, socket) {
+function registerGameEvents(io, socket, match_queue, lobbies) {
   socket.on("message", (data) => {
     console.log("Message from client:", data);
     io.emit("message", data);
   });
 
   socket.on("find_match", () => {
-    match_queue.push(socket);
+    const index = match_queue.findIndex((item) => item.id === socket.id);
+    if (index == -1) {
+      match_queue.push(socket);
+    }
 
     if (match_queue.length >= 2) {
       const player1 = match_queue.shift();

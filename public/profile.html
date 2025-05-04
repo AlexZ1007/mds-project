@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Arcana - Dashboard</title>
+  <title>Arcana - Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Used for the dropdown -->
+  <!-- Alpine.js for any dropdowns -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Uncial+Antiqua&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-100 font-sans h-full flex flex-col">
+
+  <!-- Navbar -->
   <nav class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 shadow-lg h-16 px-6 flex justify-between items-stretch">
     <a href="/home.html" class="text-3xl font-bold text-yellow-300 hover:text-yellow-400 transition flex items-center" style="font-family: 'Cinzel', serif;">
       Arcana
@@ -42,34 +44,58 @@
   </nav>
   
 
-  <!-- Header with background image, rank, and buttons -->
-  <header class="bg-[url('/img/background_banner.png')] bg-cover bg-center shadow h-[28rem] text-white flex flex-col justify-center items-center text-center px-6">
-    <h2 class="text-4xl font-extrabold mb-2">Welcome to Arcana</h2>
-    <p class="text-lg mb-6">Ready to rise in the ranks?</p>
+  <!-- Main Profile Content -->
+  <main class="flex-grow py-12 px-6 max-w-4xl mx-auto">
+    <!-- Name -->
+    <h2 class="text-4xl font-bold text-center text-gray-800 mb-10">John Doe</h2>
 
-    <!-- Rank and Button Section -->
-    <div class="bg-white bg-opacity-10 backdrop-blur p-6 rounded-xl shadow-lg flex flex-col md:flex-row items-center gap-8">
-      <!-- Rank Box -->
-      <div class="text-center">
-        <h3 class="text-2xl font-semibold">Your Rank</h3>
-        <p class="text-gray-200 text-lg">Silver II</p>
-        <p class="text-sm text-gray-300 mt-1">Wins: 24 | Losses: 18</p>
-      </div>
+    <!-- Sections -->
+    <div class="grid md:grid-cols-2 gap-8">
+      
+      <!-- Section 1 -->
+      <section class="bg-white p-8 rounded-2xl shadow">
+        <h3 class="text-xl font-semibold mb-4 text-orange-600">Player Stats</h3>
+        <ul class="space-y-2 text-gray-700">
+          <li><strong>Email:</strong> john@example.com</li>
+          <li><strong>Rank:</strong> Silver II</li>
+          <li><strong>Coins:</strong> 1560</li>
+        </ul>
+      </section>
 
-      <!-- Play Match Button -->
-      <button class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-xl shadow transition" id="find_match">
-        Play Match
-      </button>
+      <!-- Section 2 -->
+      <section class="bg-white p-8 rounded-2xl shadow">
+        <h3 class="text-xl font-semibold mb-4 text-orange-600">Card Stats</h3>
+        <ul class="space-y-2 text-gray-700">
+          <li><strong>Matches Played:</strong> 50</li>
+          <li><strong>Matches Won:</strong> 28</li>
+          <li><strong>Win rate:</strong> 58%</li>
+          <li><strong>Total Played Cards:</strong> 340</li>
+        </ul>
+      </section>
+
     </div>
-  </header>
+  </main>
 
   <!-- Footer -->
   <footer class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-yellow-300 text-center p-6 mt-auto font-semibold" style="font-family: 'Cinzel', serif;">
     <p>&copy; 2025 Arcana. All mystical rights reserved.</p>
   </footer>
   
+  <script>
+    async function fetchUserData() {
+      try {
+        const res = await fetch('/me', {
+          credentials: 'include'
+        });
+        if (!res.ok) throw new Error('Network response was not ok');
+        const data = await res.json();
+        console.log(data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    }
   
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/findMatch.js"></script>
+    fetchUserData();
+  </script>
 </body>
 </html>
