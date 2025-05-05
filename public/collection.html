@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shop</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arcana - Card Collection</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Uncial+Antiqua&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-
+  
 </head>
 <body class="bg-gray-100 font-sans h-full flex flex-col">
-  
-  <header>
+  <header>  
     <nav class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 shadow-lg h-16 px-6 flex justify-between items-stretch">
       <a href="/home.html" class="text-3xl font-bold text-yellow-300 hover:text-yellow-400 transition flex items-center" style="font-family: 'Cinzel', serif;">
         Arcana
@@ -43,30 +42,27 @@
             @click.away="open = false"
             class="absolute right-0 mt-16 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50"
             x-cloak>
+            
             <a href="/profile.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">View Profile</a>
             <a href="/logout.html" class="block px-4 py-2 text-red-500 hover:bg-red-50">Logout</a>
           </div>
         </div>
       </div>
     </nav>
-    <div class="w-full text-center mt-6 mb-6"></div>
-      <h1 class="text-4xl font-bold text-center mb-6" style="font-family: 'Cinzel', serif;">Card Shop</h1>
+
+    <div class="w-full text-center mt-6 mb-6">
+      <h1 class="text-4xl font-bold text-center mb-6" style="font-family: 'Cinzel', serif;">Your Card Collection</h1>
     </div>
+
   </header>
 
-  <main class="flex-grow w-full max-w-6xl p-6 mx-auto flex flex-col justify-center items-center">
-    <div class="space-y-6 text-center">
-      <h2 class="text-2xl font-semibold">Open Packs</h2>
-      <div class="flex justify-center space-x-6">
-        <button onclick="openPack({type: 1, cost: 10})" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg">
-          Open Pack (1 Card - 10 Coins)
-        </button>
-        <button onclick="openPack({type: 2, cost: 20})" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg">
-          Open Pack (3 Cards - 20 Coins)
-        </button>
+  
+  <main >
+    <div class="flex-grow p-6 main-container" >
+      <div id="card-collection" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Cards will be dynamically loaded here -->
       </div>
-      <div id="pack-result" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-      </div>
+      <div class="empty-space"></div>
     </div>
   </main>
 

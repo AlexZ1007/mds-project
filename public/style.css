@@ -10,3 +10,60 @@ input,
 button {
     margin: 5px;
 }
+
+.main-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.card-collection {
+    flex: 1;
+    max-width: 70%; /* Adjust width of the card section */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columns for the grid */
+    gap: 0.1rem; /* Add spacing between cards */
+}
+
+.empty-space {
+    flex: 1;
+    max-width: 30%; /* Adjust width of the empty space */
+    
+}
+
+.card-container {
+    perspective: 1000px; /* Perspective for 3D effect */
+    position: relative;
+    padding: 0.1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    margin-left: 0;
+    margin-right: auto;
+}
+
+
+.card-image {
+    position: relative;
+    width: 100%;
+    max-width: 150px; /* Adjust card width */
+    border-radius: 0.5rem;
+}
+
+
+.card-count {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-weight: bold;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px; /* Makes it a circle */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

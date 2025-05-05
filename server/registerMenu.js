@@ -6,12 +6,14 @@ function RegMenu(app) {
 
     const AuthService = require('../services/authService');
     const ShopService = require('../services/shopService');
+    const CollectionService = require('../services/collectionService');
     require('dotenv').config(); 
     const authMiddleware = require('./authMiddleware');
 
 
     const auth = new AuthService();
     const shop = new ShopService();
+    const collection = new CollectionService();
 
     app.use(cors());
     app.use(express.json());
@@ -68,6 +70,17 @@ function RegMenu(app) {
     app.get('/me', authMiddleware, (req, res) => {
         res.json({ userId: req.user.userId });
       });
+
+    app.get('/collection', authMiddleware, async (req, res) => {
+        const userId = req.user.userId; // Assuming `authMiddleware` attaches the user object to `req`
+        try {
+            const cards = await collection.getUserCards(userId);
+            res.status(200).json({ cards });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Failed to fetch card collection.' });
+        }
+    });
 
 }
 
