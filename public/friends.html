@@ -10,31 +10,33 @@
   <link rel="stylesheet" href="style.css">
   <script src="/js/friends.js" defer></script>
 </head>
-<body class="bg-gradient-to-b from-purple-900 via-indigo-900 to-purple-800 text-yellow-300 font-sans h-full flex flex-col" style="font-family: 'Cinzel', serif;">
+
+<!-- <body class="bg-gradient-to-b from-purple-900 via-indigo-900 to-purple-800 text-yellow-300 font-sans h-full flex flex-col" > -->
+<body class="bg-gray-100 font-sans h-full flex flex-col">
 
   <!-- Main Content -->
-  <main class="w-full max-w-6xl p-6 mx-auto flex flex-col justify-center items-center space-y-6 flex-grow">
+  <main class="w-full max-w-6xl p-6 mx-auto flex flex-col justify-center items-center space-y-6 flex-grow" >
     <!-- Search Bar -->
-    <div class="flex justify-center w-full">
+    <div class="flex justify-center w-full" style="font-family: 'Cinzel', serif;">
       <input id="search-bar" type="text" placeholder="Search users..." class="p-3 border border-yellow-300 rounded-lg w-80 bg-purple-800 text-yellow-300 placeholder-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400">
       <button onclick="searchUsers()" class="ml-4 bg-yellow-500 hover:bg-yellow-600 text-purple-900 font-bold px-6 py-3 rounded-lg shadow-lg transition">Search</button>
     </div>
 
     <!-- Search Results -->
-    <div class="w-full">
-      <div id="search-results" class="space-y-4"></div>
+    <div class="w-full" >
+      <div id="search-results" class="space-y-4 text-black"></div>
     </div>
 
     <!-- Pending Requests -->
-    <div class="w-full">
-      <h2 class="text-2xl font-semibold mb-4 text-yellow-400">Pending Requests</h2>
+    <div class="w-full" style="font-family: 'Cinzel', serif;">
+      <h2 class="text-2xl font-semibold mb-4 text-black-400">Pending Requests</h2>
       <div id="pending-requests" class="space-y-4"></div>
     </div>
 
     <!-- Friends List -->
     <div class="w-full">
-      <h2 class="text-2xl font-semibold mb-4 text-yellow-400">Friends</h2>
-      <div id="friends-list" class="space-y-4"></div>
+      <h2 class="text-2xl font-semibold mb-4 text-black-400" style="font-family: 'Cinzel', serif;">Friends</h2>
+      <div id="friends-list" class="space-y-4 text-black"></div>
     </div>
   </main>
 
