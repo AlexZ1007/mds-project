@@ -60,17 +60,17 @@ async function openPack(pack_info) {
   const packResultDiv = document.getElementById('pack-result');
 
   if (res.status === 202) {
-    packResultDiv.innerHTML = ''; 
+    packResultDiv.innerHTML = '';
 
     if (data.pack.length === 1) {
-      packResultDiv.className = 'flex justify-center items-center'; 
+      packResultDiv.className = 'flex justify-center items-center';
     } else {
-      packResultDiv.className = 'grid grid-cols-1 md:grid-cols-3 gap-6'; 
+      packResultDiv.className = 'grid grid-cols-1 md:grid-cols-3 gap-6';
     }
 
     data.pack.forEach(card => {
       const cardDiv = document.createElement('div');
-      cardDiv.className = 'bg-white p-6 rounded-lg shadow-lg flex flex-col items-center w-full md:w-80'; 
+      cardDiv.className = 'bg-white p-6 rounded-lg shadow-lg flex flex-col items-center w-full md:w-80';
       cardDiv.innerHTML = `
         <img src="${card.card_image}" alt="${card.card_name}" class="w-full mb-4"> 
         <h4 class="text-lg font-semibold text-center">${card.card_name} <span class="text-sm text-gray-500">(Level: ${card.level})</span></h4>
@@ -117,7 +117,7 @@ async function createCardModal(card) {
 
   // Append the modal to the body
   document.body.appendChild(modal);
-  
+
   // Add event listener to close the modal
   document.getElementById('close-modal').addEventListener('click', () => {
     document.body.removeChild(modal);
@@ -146,7 +146,7 @@ async function initializeCardClickEvents(cards) {
       if (card) {
         createCardModal(card);
       }
-      else{
+      else {
         console.error('Card data not found for ID:', cardId);
 
       }
@@ -186,16 +186,16 @@ async function fetchCollection() {
   }
 }
 
-async function fetchUserData(){
-  try{
+async function fetchUserData() {
+  try {
     const response = await fetch('/user-data', { credentials: 'include' });
-    if(!response.ok) {
+    if (!response.ok) {
       console.error('Failed to fetch user data:', response.statusText);
       return;
     }
     const userData = await response.json();
     return userData;
-  }catch(error){
+  } catch (error) {
     console.error('Error fetching user data', error);
     return null;
   }
@@ -204,30 +204,47 @@ async function fetchUserData(){
 
 async function loadNavbar() {
   // Fetch the navbar HTML from a separate file (e.g., navbar.html)
-  try{
+  try {
     const response = await fetch('/components/navbar.html');
-  if (!response.ok) {
-    console.error('Failed to load navbar:', response.statusText);
-    return;
-  }
-
-  // Get the HTML content of the navbar
-  const navbarHTML = await response.text();
-
-  // Insert the navbar HTML at the top of the body
-  const navbarContainer = document.createElement('div');
-  navbarContainer.innerHTML = navbarHTML;
-  document.body.insertBefore(navbarContainer, document.body.firstChild);
-  // Fetch user data and update the nickname
-  const userData = await fetchUserData();
-  if (userData) {
-    const nicknameElement = document.querySelector('.user-nickname');
-    // const 
-    if (nicknameElement) {
-      nicknameElement.textContent = "Hello, " + userData.nickname;
+    if (!response.ok) {
+      console.error('Failed to load navbar:', response.statusText);
+      return;
     }
-  }
-  }catch(error){
+
+    // Get the HTML content of the navbar
+    const navbarHTML = await response.text();
+
+    // Insert the navbar HTML at the top of the body
+    const navbarContainer = document.createElement('div');
+    navbarContainer.innerHTML = navbarHTML;
+    document.body.insertBefore(navbarContainer, document.body.firstChild);
+    // Fetch user data and update the nickname
+    const userData = await fetchUserData();
+    if (userData) {
+      const nicknameElement = document.querySelector('.user-nickname');
+      // const 
+      if (nicknameElement) {
+        nicknameElement.textContent = "Hello, " + userData.nickname;
+      }
+
+      navbarContainer.querySelector('#logoutBtn')?.addEventListener('click', async () => {
+        try {
+          const response = await fetch('/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          if (response.ok) {
+            window.location.href = '/';
+          } else {
+            console.error('Logout failed');
+          }
+        } catch (error) {
+          console.error('Logout error:', error);
+        }
+      });
+
+    }
+  } catch (error) {
     console.error('Error loading navbar:', error);
   }
 }
@@ -242,6 +259,6 @@ window.addEventListener("load", () => {
   }
 
 
-  if(window.location.pathname.endsWith('/collection.html'))
+  if (window.location.pathname.endsWith('/collection.html'))
     fetchCollection(); // Fetch the collection when the page load
 });

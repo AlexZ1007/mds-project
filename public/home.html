@@ -12,7 +12,7 @@
     rel="stylesheet">
 
 
-  
+
 
 </head>
 
@@ -52,25 +52,8 @@
 
 
 
-  <script>
-    logout = () => {
-      fetch('/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(response => {
-          if (response.ok) {
-            window.location.href = '/login.html';
-          } else {
-            console.error('Logout failed');
-          }
-        })
-        .catch(error => console.error('Error:', error));
-    };
-  </script>
-  
+
+
   <script src="client.js"></script>
 
   <script src="/socket.io/socket.io.js"></script>
