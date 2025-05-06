@@ -59,7 +59,7 @@ async function openPack(pack_info) {
   const packResultDiv = document.getElementById('pack-result');
 
   if (res.status === 202) {
-    packResultDiv.innerHTML = ''; // Clear previous results
+    packResultDiv.innerHTML = ''; 
 
     if (data.pack.length === 1) {
       packResultDiv.className = 'flex justify-center items-center'; 
@@ -71,7 +71,7 @@ async function openPack(pack_info) {
       const cardDiv = document.createElement('div');
       cardDiv.className = 'bg-white p-6 rounded-lg shadow-lg flex flex-col items-center w-full md:w-80'; 
       cardDiv.innerHTML = `
-        <img src="${card.card_image}" alt="${card.card_name}" class="w-full mb-4"> <!-- Bigger and rectangular -->
+        <img src="${card.card_image}" alt="${card.card_name}" class="w-full mb-4"> 
         <h4 class="text-lg font-semibold text-center">${card.card_name} <span class="text-sm text-gray-500">(Level: ${card.level})</span></h4>
         <p class="text-sm text-gray-600 text-center">${card.description}</p>
       `;
