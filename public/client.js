@@ -163,9 +163,11 @@ async function initializeCardClickEvents(cards) {
 }
 
 
-async function fetchUserData() {
+async function fetchUserData(userId = null) { 
   try {
-    const response = await fetch('/user-data', { credentials: 'include' });
+
+    const url = userId ? `/user-data?profile_user_id=${encodeURIComponent(userId)}` : '/user-data'; // Adjust the URL based on whether userId is provided
+     const response = await fetch(url, { credentials: 'include' });
     if (!response.ok) {
       console.error('Failed to fetch user data:', response.statusText);
       return;

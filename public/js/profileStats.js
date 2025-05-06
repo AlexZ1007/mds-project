@@ -1,5 +1,9 @@
 async function populateProfilePage() {
-    const userData = await fetchUserData();
+
+    // get the userId from the URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userid') || null; // Default to null if not provided
+    const userData = await fetchUserData(userId);
     if (!userData) {
       console.error('Failed to load user data.');
       return;
