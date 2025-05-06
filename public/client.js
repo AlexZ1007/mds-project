@@ -48,6 +48,7 @@ async function login() {
 }
 
 async function openPack(pack_info) {
+
   const res = await fetch('/pack', {
     credentials: 'include',
     method: 'POST',

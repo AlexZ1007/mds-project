@@ -1,5 +1,5 @@
 
-function RegMenu(app) { 
+function RegMenu(app) {
     const cors = require('cors');
     const express = require("express");
     const jwt = require('jsonwebtoken');
@@ -7,7 +7,7 @@ function RegMenu(app) {
     const AuthService = require('../services/authService');
     const ShopService = require('../services/shopService');
     const CollectionService = require('../services/collectionService');
-    require('dotenv').config(); 
+    require('dotenv').config();
     const authMiddleware = require('./authMiddleware');
 
 
@@ -28,7 +28,7 @@ function RegMenu(app) {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'Lax',
-                maxAge: 3600000 
+                maxAge: 3600000
             });
             res.status(200).json({ message: 'Registration successful', token });
 
@@ -40,7 +40,9 @@ function RegMenu(app) {
     app.post('/login', async (req, res) => {
         // TODO: check if user is already logged in
         const { username, password } = req.body;
+
         try {
+
             const user = await auth.login(username, password);
 
             const token = jwt.sign({ userId: user.user_id }, process.env.SECRET_KEY, { expiresIn: '1h' });
@@ -48,7 +50,7 @@ function RegMenu(app) {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'Lax',
-                maxAge: 3600000 
+                maxAge: 3600000
             });
 
             res.status(201).json({ message: 'Login successful', token });
@@ -59,17 +61,28 @@ function RegMenu(app) {
 
     app.post('/pack', authMiddleware, async (req, res) => {
         const { pack_info } = req.body;
-        try{
+        try {
             const pack = await shop.openPack(pack_info, req.user.userId);
             res.status(202).json({ message: 'Pack opened successfully', pack });
-        }catch (e) {
+        } catch (e) {
             res.status(402).json({ error: e.message });
         }
     });
 
     app.get('/me', authMiddleware, (req, res) => {
         res.json({ userId: req.user.userId });
-      });
+    });
+
+    app.get('/check-loggedin', authMiddleware, async (req, res) => {
+        let temp = req.user.userId;
+        if (temp === undefined) {
+            res.status(400).json({ error: 'User not logged in' });
+        }
+        else {
+            res.status(200).json({ message: 'User is logged in', userId: temp });
+        }
+    });
+
 
     app.get('/collection', authMiddleware, async (req, res) => {
         const userId = req.user.userId; // Assuming `authMiddleware` attaches the user object to `req`
