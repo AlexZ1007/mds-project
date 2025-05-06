@@ -242,7 +242,7 @@ async function loadNavbar() {
 window.addEventListener("load", () => {
 
   // Check if the current page is one of the specified pages
-  const validPages = ['/collection.html', '/shop.html', '/home.html', '/profile.html'];
+  const validPages = ['/collection.html', '/shop.html', '/home.html', '/profile.html', '/friends.html'];
   if (validPages.includes(window.location.pathname)) {
     loadNavbar(); // Load the navbar only on the specified pages
   }

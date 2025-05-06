@@ -103,7 +103,7 @@ class authService {
   async getUserData(userId) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT u.nickname, u.balance, u.elo, u.matches_played,
+        `SELECT u.nickname, u.email, u.balance, u.elo, u.matches_played,
         u.matches_won, d.division_name
         FROM User u JOIN Division d ON u.division_id = d.division_id
         WHERE u.user_id = ?`,

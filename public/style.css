@@ -1,3 +1,7 @@
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: Arial, sans-serif;
 }
@@ -66,4 +70,12 @@ button {
     padding: 0.25rem 0.5rem;
     border-radius: 9999px; /* Makes it a circle */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.card-image-in-home{
+    position: relative;
+    width: 100%;
+    max-width: 100%; /* Adjust card width */
+    border-radius: 0.5rem;
 }
