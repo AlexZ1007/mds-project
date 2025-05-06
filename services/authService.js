@@ -99,6 +99,25 @@ class authService {
     console.log(user);
     return user;
   }
+
+  async getUserData(userId) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT u.nickname, u.balance, u.elo, u.matches_played,
+        u.matches_won, d.division_name
+        FROM User u JOIN Division d ON u.division_id = d.division_id
+        WHERE u.user_id = ?`,
+        [userId],
+        (err, results) => {
+          if (err) return reject(err);
+          resolve(results[0]); // Return the first result (user data)
+        }
+      );
+    });
+  }
+  
+  
 }
+
 
 module.exports = authService;

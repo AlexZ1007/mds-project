@@ -154,6 +154,7 @@ async function initializeCardClickEvents(cards) {
 }
 
 
+
 async function fetchCollection() {
   const res = await fetch('/collection', { credentials: 'include' });
   const data = await res.json();
@@ -184,4 +185,62 @@ async function fetchCollection() {
   }
 }
 
-window.addEventListener("load",fetchCollection);
+async function fetchUserData(){
+  try{
+    const response = await fetch('/user-data', { credentials: 'include' });
+    if(!response.ok) {
+      console.error('Failed to fetch user data:', response.statusText);
+      return;
+    }
+    const userData = await response.json();
+    return userData;
+  }catch(error){
+    console.error('Error fetching user data', error);
+    return null;
+  }
+}
+
+
+async function loadNavbar() {
+  // Fetch the navbar HTML from a separate file (e.g., navbar.html)
+  try{
+    const response = await fetch('/components/navbar.html');
+  if (!response.ok) {
+    console.error('Failed to load navbar:', response.statusText);
+    return;
+  }
+
+  // Get the HTML content of the navbar
+  const navbarHTML = await response.text();
+
+  // Insert the navbar HTML at the top of the body
+  const navbarContainer = document.createElement('div');
+  navbarContainer.innerHTML = navbarHTML;
+  document.body.insertBefore(navbarContainer, document.body.firstChild);
+  // Fetch user data and update the nickname
+  const userData = await fetchUserData();
+  if (userData) {
+    const nicknameElement = document.querySelector('.user-nickname');
+    // const 
+    if (nicknameElement) {
+      nicknameElement.textContent = "Hello, " + userData.nickname;
+    }
+  }
+  }catch(error){
+    console.error('Error loading navbar:', error);
+  }
+}
+
+
+window.addEventListener("load", () => {
+
+  // Check if the current page is one of the specified pages
+  const validPages = ['/collection.html', '/shop.html', '/home.html', '/profile.html'];
+  if (validPages.includes(window.location.pathname)) {
+    loadNavbar(); // Load the navbar only on the specified pages
+  }
+
+
+  if(window.location.pathname.endsWith('/collection.html'))
+    fetchCollection(); // Fetch the collection when the page load
+});
