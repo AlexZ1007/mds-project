@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans h-full flex flex-col">
+    <header class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 shadow h-16 px-6 flex justify-between items-center">
+        <a href="/home.html" class="text-3xl font-bold text-yellow-300 hover:text-yellow-400 transition" style="font-family: 'Cinzel', serif;">
+            Arcana
+        </a>
+        <div class="flex items-center space-x-4">
+            <a href="/home.html" class="text-yellow-300 px-6 font-bold hover:bg-purple-600 transition" style="font-family: 'Cinzel', serif;">
+                HOME
+            </a>
+            <a href="/logout.html" class="text-yellow-300 px-6 font-bold hover:bg-purple-600 transition" style="font-family: 'Cinzel', serif;">
+                LOGOUT
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center">
+        <div class="text-center bg-white p-8 rounded-2xl shadow-lg">
+            <h1 class="text-4xl font-bold text-red-600 mb-4">Access Denied</h1>
+            <p class="text-gray-700 text-lg mb-6">You are already logged in.</p>
+            <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-lg transition">
+                Go Back to Home
+            </a>
+        </div>
+    </main>
+
+    <footer class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-yellow-300 text-center p-6 font-semibold" style="font-family: 'Cinzel', serif;">
+        <p>&copy; 2025 Arcana. All mystical rights reserved.</p>
+    </footer>
+</body>
+</html>

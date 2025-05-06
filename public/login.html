@@ -5,6 +5,23 @@
   <meta charset="UTF-8">
   <title>Auth App</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    console.log("Login page loaded");
+
+    document.addEventListener('DOMContentLoaded', async () => {
+
+      try {
+        const res = await fetch('/check-loggedin', { credentials: 'include' });
+        console.log(res.status);
+        if (res.status === 200) {
+          const data = await res.json();
+          window.location.href = '/accesDenied.html';  
+        }
+      } catch (err) {
+        console.error('Error checking login status:', err);
+      }
+    });
+  </script>
 </head>
 
 <body class="bg-gray-100 text-gray-800 min-h-screen flex items-center justify-center">
@@ -22,25 +39,8 @@
     </div>
   </div>
 
-  v
-  <script>
-    console.log("Login page loaded");
-
-    document.addEventListener('DOMContentLoaded', async () => {
-
-      try {
-        const res = await fetch('/check-loggedin', { credentials: 'include' });
-        console.log(res.status);
-        if (res.status === 200) {
-          const data = await res.json();
-          console.log("SUNT LOGAT");
-          window.location.href = '/home.html'; // Redirect to home if logged in  
-        }
-      } catch (err) {
-        console.error('Error checking login status:', err);
-      }
-    });
-  </script>
+  
+  
   <script src="client.js"></script>
 
 
