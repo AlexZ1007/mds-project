@@ -21,6 +21,9 @@ function RegMenu(app) {
     app.post('/register', async (req, res) => {
         // TODO: check if user is already logged in
         const { username, password, email } = req.body;
+        if (!username || !password || !email) {
+            return res.status(400).json({ error: 'All fields are required.' });
+        }
         try {
             user = await auth.register(username, password, email);
             const token = jwt.sign({ username: user.user_id }, process.env.SECRET_KEY, { expiresIn: '1h' });
