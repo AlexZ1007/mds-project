@@ -262,3 +262,8 @@ window.addEventListener("load", () => {
   if (window.location.pathname.endsWith('/collection.html'))
     fetchCollection(); // Fetch the collection when the page load
 });
+
+
+async function mergeCard(){
+  
+}
