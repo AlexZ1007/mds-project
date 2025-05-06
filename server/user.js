@@ -1,5 +1,5 @@
 class User{
-
+ 
     constructor(userId, nickname, password, email){
         this.userId = userId;
         this.nickname = nickname;

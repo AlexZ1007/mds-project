@@ -27,13 +27,12 @@ class authService {
     }
 
     const hashed = bcrypt.hashSync(password, 10);
-    
 
-    await connection.query('INSERT INTO User (nickname, balance, matches_played, matches_won, password, email) VALUES (?, 100, 0,0, ?, ?)',
+
+    await connection.query('INSERT INTO User (nickname, balance, matches_played, matches_won, password, email, division_id) VALUES (?, 100, 0,0, ?, ?, 1)',
       [nickname, hashed, email],
     );
 
-    // Get the user ID of the newly created user
     const result = await new Promise((resolve, reject) => {
       connection.query(
         'SELECT user_id FROM User WHERE nickname = ?',
@@ -51,6 +50,7 @@ class authService {
   }
 
   async login(nickname, password) {
+
     const result = await new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM User WHERE nickname = ? or email = ?',
@@ -64,10 +64,10 @@ class authService {
 
     if (!result || result.length === 0) {
       throw new Error('User not found');
-  }
+    }
     const user = result[0];
     if (!bcrypt.compareSync(password, user.password)) {
-        throw new Error('Password is incorrect');
+      throw new Error('Password is incorrect');
     }
 
     const cardStats = await new Promise((resolve, reject) => {
@@ -81,7 +81,7 @@ class authService {
       );
     });
 
-    user.cards =  cardStats.map(row => ({
+    user.cards = cardStats.map(row => ({
       card: {
         card_id: row.card_id,
         name: row.card_name,
@@ -94,11 +94,30 @@ class authService {
         level: row.level
       },
       card_count: row.card_count,
-      
+
     }));
     console.log(user);
     return user;
   }
+
+  async getUserData(userId) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT u.nickname, u.balance, u.elo, u.matches_played,
+        u.matches_won, d.division_name
+        FROM User u JOIN Division d ON u.division_id = d.division_id
+        WHERE u.user_id = ?`,
+        [userId],
+        (err, results) => {
+          if (err) return reject(err);
+          resolve(results[0]); // Return the first result (user data)
+        }
+      );
+    });
+  }
+  
+
 }
+
 
 module.exports = authService;
