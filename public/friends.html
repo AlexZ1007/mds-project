@@ -1,44 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
-  <title>Friends</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcana - Friends</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <script src="/js/friends.js" defer></script>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center p-6">
-  <header class="w-full bg-blue-600 text-white py-4 text-center">
-    <h1 class="text-3xl font-bold">Friends</h1>
-  </header>
+<body class="bg-gradient-to-b from-purple-900 via-indigo-900 to-purple-800 text-yellow-300 font-sans h-full flex flex-col" style="font-family: 'Cinzel', serif;">
 
-  <main class="w-full max-w-4xl mt-6 space-y-6">
+  <!-- Main Content -->
+  <main class="w-full max-w-6xl p-6 mx-auto flex flex-col justify-center items-center space-y-6 flex-grow">
     <!-- Search Bar -->
-    <div class="flex justify-center">
-      <input id="search-bar" type="text" placeholder="Search users..." class="p-2 border rounded-lg w-80">
-      <button onclick="searchUsers()" class="ml-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">Search</button>
+    <div class="flex justify-center w-full">
+      <input id="search-bar" type="text" placeholder="Search users..." class="p-3 border border-yellow-300 rounded-lg w-80 bg-purple-800 text-yellow-300 placeholder-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+      <button onclick="searchUsers()" class="ml-4 bg-yellow-500 hover:bg-yellow-600 text-purple-900 font-bold px-6 py-3 rounded-lg shadow-lg transition">Search</button>
     </div>
 
     <!-- Search Results -->
-    <div>
-      <h2 class="text-xl font-semibold mb-4">Search Results</h2>
+    <div class="w-full">
       <div id="search-results" class="space-y-4"></div>
     </div>
 
     <!-- Pending Requests -->
-    <div>
-      <h2 class="text-xl font-semibold mb-4">Pending Requests</h2>
+    <div class="w-full">
+      <h2 class="text-2xl font-semibold mb-4 text-yellow-400">Pending Requests</h2>
       <div id="pending-requests" class="space-y-4"></div>
     </div>
 
     <!-- Friends List -->
-    <div>
-      <h2 class="text-xl font-semibold mb-4">Friends</h2>
+    <div class="w-full">
+      <h2 class="text-2xl font-semibold mb-4 text-yellow-400">Friends</h2>
       <div id="friends-list" class="space-y-4"></div>
     </div>
   </main>
 
-  <footer class="w-full bg-gray-800 text-white text-center py-4 mt-6">
-    <p>&copy; 2025 Your App. All rights reserved.</p>
+  <!-- Footer -->
+  <footer class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-yellow-300 text-center p-6 mt-auto font-semibold w-full" style="font-family: 'Cinzel', serif;">
+    <p>&copy; 2025 Arcana. All mystical rights reserved.</p>
   </footer>
+
+  <script src="client.js"></script>
 </body>
 </html>
