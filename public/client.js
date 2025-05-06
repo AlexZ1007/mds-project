@@ -54,8 +54,7 @@ async function openPack(pack_info) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ pack_info: pack_info })
-  });
-
+  }); 
   const data = await res.json();
   const packResultDiv = document.getElementById('pack-result');
 
@@ -63,7 +62,7 @@ async function openPack(pack_info) {
     packResultDiv.innerHTML = '';
 
     if (data.pack.length === 1) {
-      packResultDiv.className = 'flex justify-center items-center';
+      packResultDiv.className = 'flex justify-center items-center gap-6';
     } else {
       packResultDiv.className = 'grid grid-cols-1 md:grid-cols-3 gap-6';
     }
@@ -78,6 +77,15 @@ async function openPack(pack_info) {
       `;
       packResultDiv.appendChild(cardDiv);
     });
+
+    // Update the balance dynamically
+    const userData = await fetchUserData();
+    if (userData) {
+      const coinsElement = document.getElementById('user-coins');
+      if (coinsElement) {
+        coinsElement.textContent = `${userData.balance}`;
+      }
+    }
   } else {
     packResultDiv.innerHTML = `<p class="text-red-500">${data.error}</p>`;
   }
@@ -155,37 +163,6 @@ async function initializeCardClickEvents(cards) {
 }
 
 
-
-async function fetchCollection() {
-  const res = await fetch('/collection', { credentials: 'include' });
-  const data = await res.json();
-  // console.log(data);
-
-  const collectionDiv = document.getElementById('card-collection');
-  if (!collectionDiv) {
-    console.error('Card collection container not found.');
-    return;
-  }
-  if (res.status === 200) {
-    data.cards.forEach(card => {
-      const cardDiv = document.createElement('div');
-      cardDiv.className = 'card-container';
-      cardDiv.dataset.cardId = card.card_id; // Store the card ID for later use
-      cardDiv.innerHTML = `
-        <div class="card-image">
-          <div class="card-count">${card.card_count}</div>
-          <img src="${card.card_image}" alt="${card.card_name}" class="w-full">
-        </div>
-      `;
-      collectionDiv.appendChild(cardDiv);
-    });
-    // Initialize click events for the cards
-    initializeCardClickEvents(data.cards);
-  } else {
-    collectionDiv.innerHTML = `<p class="text-red-500">${data.error}</p>`;
-  }
-}
-
 async function fetchUserData() {
   try {
     const response = await fetch('/user-data', { credentials: 'include' });
@@ -227,6 +204,18 @@ async function loadNavbar() {
         nicknameElement.textContent = "Hello, " + userData.nickname;
       }
 
+      // to display the coins
+      const coinsElement = document.getElementById('user-coins');
+      if (coinsElement) {
+        coinsElement.textContent = `${userData.balance}`;
+      }
+
+      // to display the elo
+      const eloElement = document.getElementById('user-elo');
+      if(eloElement){
+        eloElement.textContent = `${userData.elo}`;
+      }
+
       navbarContainer.querySelector('#logoutBtn')?.addEventListener('click', async () => {
         try {
           const response = await fetch('/logout', {
@@ -257,8 +246,4 @@ window.addEventListener("load", () => {
   if (validPages.includes(window.location.pathname)) {
     loadNavbar(); // Load the navbar only on the specified pages
   }
-
-
-  if (window.location.pathname.endsWith('/collection.html'))
-    fetchCollection(); // Fetch the collection when the page load
 });
