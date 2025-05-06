@@ -22,5 +22,13 @@
   </div>
 
   <script src="client.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+      if (token) {
+        window.location.href = '/home.html'; // Redirect to home page if logged in
+      }
+    });
+  </script>
 </body>
 </html>

@@ -51,6 +51,7 @@ class authService {
   }
 
   async login(nickname, password) {
+
     const result = await new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM User WHERE nickname = ? or email = ?',
