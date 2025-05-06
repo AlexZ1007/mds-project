@@ -27,7 +27,7 @@ class authService {
     }
 
     const hashed = bcrypt.hashSync(password, 10);
-    
+
 
     await connection.query('INSERT INTO User (nickname, balance, matches_played, matches_won, password, email) VALUES (?, 100, 0,0, ?, ?)',
       [nickname, hashed, email],
@@ -65,10 +65,10 @@ class authService {
 
     if (!result || result.length === 0) {
       throw new Error('User not found');
-  }
+    }
     const user = result[0];
     if (!bcrypt.compareSync(password, user.password)) {
-        throw new Error('Password is incorrect');
+      throw new Error('Password is incorrect');
     }
 
     const cardStats = await new Promise((resolve, reject) => {
@@ -82,7 +82,7 @@ class authService {
       );
     });
 
-    user.cards =  cardStats.map(row => ({
+    user.cards = cardStats.map(row => ({
       card: {
         card_id: row.card_id,
         name: row.card_name,
@@ -95,7 +95,7 @@ class authService {
         level: row.level
       },
       card_count: row.card_count,
-      
+
     }));
     console.log(user);
     return user;
@@ -117,7 +117,7 @@ class authService {
     });
   }
   
-  
+
 }
 
 

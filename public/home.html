@@ -11,11 +11,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Uncial+Antiqua&display=swap"
     rel="stylesheet">
 
+
   
 
 </head>
 
 <body class="bg-gray-100 font-sans h-full flex flex-col">
+
 
   <!-- Header with background image, rank, and buttons -->
   <header
@@ -48,6 +50,26 @@
     <p>&copy; 2025 Arcana. All mystical rights reserved.</p>
   </footer>
 
+
+
+  <script>
+    logout = () => {
+      fetch('/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => {
+          if (response.ok) {
+            window.location.href = '/login.html';
+          } else {
+            console.error('Logout failed');
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    };
+  </script>
   
   <script src="client.js"></script>
 

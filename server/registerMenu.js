@@ -73,6 +73,7 @@ function RegMenu(app) {
         res.json({ userId: req.user.userId });
     });
 
+
     app.get('/check-loggedin', authMiddleware, async (req, res) => {
         let temp = req.user.userId;
         if (temp === undefined) {
@@ -95,6 +96,11 @@ function RegMenu(app) {
         }
     });
 
+
+    app.post('/logout', authMiddleware, (req, res) => {
+        res.clearCookie('token');
+        res.status(200).json({ message: 'Logout successful' });
+    });
 
     app.get('/user-data', authMiddleware, async (req, res) => {
         const userId = req.user.userId;
