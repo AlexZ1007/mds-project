@@ -11,6 +11,10 @@
       style="font-family: 'Cinzel', serif;">
       HOME
     </a>
+    <a href="/friends.html" class="text-yellow-300 px-6 flex items-center font-bold hover:bg-purple-600 transition"
+      style="font-family: 'Cinzel', serif;">
+      FRIENDS
+    </a>
     <a href="/collection.html" class="text-yellow-300 px-6 flex items-center font-bold hover:bg-purple-600 transition"
       style="font-family: 'Cinzel', serif;">
       COLLECTION
@@ -19,6 +23,7 @@
       style="font-family: 'Cinzel', serif;">
       SHOP
     </a>
+
 
 
     <div x-data="{ open: false }" class="relative flex items-center">
@@ -35,5 +40,19 @@
         <button id="logoutBtn" class="block px-4 py-2 text-red-500 hover:bg-red-50">Logout</button>
       </div>
     </div>
+
+
+    <!-- Coins -->
+    <div class="flex items-center text-yellow-100 font-semibold space-x-2">
+      <img src="/img/coins.png" alt="Coins" class="w-6 h-6">
+      <span id="user-coins">Loading...</span>
+    </div>
+
+    <!-- ELO -->
+    <div class="flex items-center text-yellow-100 font-semibold space-x-2">
+      <img src="/img/elo.png" alt="ELO" class="w-6 h-6">
+      <span id="user-elo">Loading...</span>
+    </div>
+
   </div>
 </nav>
