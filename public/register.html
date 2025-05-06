@@ -31,20 +31,13 @@
       <input id="reg-pass" placeholder="Password" type="password" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
       <input id="reg-email" placeholder="Email" type="email"  class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
       <button onclick="register()" class="w-full bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700">Register</button>
+      <a href="/index.html" class="w-full block text-center bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700">Back</a>
       <p id="reg-msg" class="text-sm text-red-500"></p>
-    </div>
 
+    </div>
 
   </div>
 
   <script src="client.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='));
-      if (token) {
-        window.location.href = '/home.html'; // Redirect to home page if logged in
-      }
-    });
-  </script>
 </body>
 </html>

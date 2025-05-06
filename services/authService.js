@@ -29,11 +29,10 @@ class authService {
     const hashed = bcrypt.hashSync(password, 10);
 
 
-    await connection.query('INSERT INTO User (nickname, balance, matches_played, matches_won, password, email) VALUES (?, 100, 0,0, ?, ?)',
+    await connection.query('INSERT INTO User (nickname, balance, matches_played, matches_won, password, email, division_id) VALUES (?, 100, 0,0, ?, ?, 1)',
       [nickname, hashed, email],
     );
 
-    // Get the user ID of the newly created user
     const result = await new Promise((resolve, reject) => {
       connection.query(
         'SELECT user_id FROM User WHERE nickname = ?',
