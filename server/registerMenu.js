@@ -95,6 +95,18 @@ function RegMenu(app) {
         }
     });
 
+
+    app.get('/user-data', authMiddleware, async (req, res) => {
+        const userId = req.user.userId;
+        try{
+            const userData = await auth.getUserData(userId);
+            res.status(200).json(userData);
+        }catch (error) {
+            console.error("Error fetching user data:", error);
+            res.status(500).json({ error: 'Failed to fetch user data.' });
+        }
+    });
+
 }
 
 module.exports = RegMenu;
