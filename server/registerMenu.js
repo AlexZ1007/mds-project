@@ -40,7 +40,9 @@ function RegMenu(app) {
     app.post('/login', async (req, res) => {
         // TODO: check if user is already logged in
         const { username, password } = req.body;
+
         try {
+
             const user = await auth.login(username, password);
 
             const token = jwt.sign({ userId: user.user_id }, process.env.SECRET_KEY, { expiresIn: '1h' });
@@ -71,6 +73,18 @@ function RegMenu(app) {
         res.json({ userId: req.user.userId });
     });
 
+
+    app.get('/check-loggedin', authMiddleware, async (req, res) => {
+        let temp = req.user.userId;
+        if (temp === undefined) {
+            res.status(400).json({ error: 'User not logged in' });
+        }
+        else {
+            res.status(200).json({ message: 'User is logged in', userId: temp });
+        }
+    });
+
+
     app.get('/collection', authMiddleware, async (req, res) => {
         const userId = req.user.userId; // Assuming `authMiddleware` attaches the user object to `req`
         try {
@@ -87,6 +101,18 @@ function RegMenu(app) {
         res.clearCookie('token');
         res.status(200).json({ message: 'Logout successful' });
     });
+
+    app.get('/user-data', authMiddleware, async (req, res) => {
+        const userId = req.user.userId;
+        try{
+            const userData = await auth.getUserData(userId);
+            res.status(200).json(userData);
+        }catch (error) {
+            console.error("Error fetching user data:", error);
+            res.status(500).json({ error: 'Failed to fetch user data.' });
+        }
+    });
+
 }
 
 module.exports = RegMenu;
