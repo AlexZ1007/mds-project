@@ -30,7 +30,7 @@ function RegMenu(app) {
             const token = jwt.sign({ username: user.user_id }, process.env.SECRET_KEY, { expiresIn: '1h' });
             res.cookie('token', token, {
                 httpOnly: true,
-                secure: false,
+                secure: process.env.MODE == 'prod' ? true : false,
                 sameSite: 'Lax',
                 maxAge: 3600000
             });
@@ -52,7 +52,7 @@ function RegMenu(app) {
             const token = jwt.sign({ userId: user.user_id }, process.env.SECRET_KEY, { expiresIn: '1h' });
             res.cookie('token', token, {
                 httpOnly: true,
-                secure: false,
+                secure: process.env.MODE == 'prod' ? true : false,
                 sameSite: 'Lax',
                 maxAge: 3600000
             });
