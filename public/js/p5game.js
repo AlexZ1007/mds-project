@@ -8,7 +8,7 @@ const padding = 30;
 
 function preload() {
   // Load your dragon image
-  dragonImg = loadImage('/img/dragon.png');
+  dragonImg = loadImage('/img/dragon_L1.jpg');
 }
 
 function setup() {
