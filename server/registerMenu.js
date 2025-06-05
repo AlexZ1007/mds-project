@@ -102,6 +102,73 @@ function RegMenu(app) {
     });
 
 
+    //------------merge-card----------------
+    app.post('/merge-card', authMiddleware, async (req, res) => {
+        const { card_id, level } = req.body;
+        const userId = req.user.userId;
+
+        // Only allow merge for level 1 or 2
+        if (![1, 2].includes(level)) {
+            return res.status(400).json({ error: 'Only cards of level 1 or 2 can be merged.' });
+        }
+
+        // 1. Get the card's name for the current card_id
+        const getNameQuery = `SELECT card_name FROM Card WHERE card_id = ? AND level = ?`;
+        connection.query(getNameQuery, [card_id, level], (err, nameResults) => {
+            if (err || !nameResults.length) {
+                return res.status(500).json({ error: 'Database error (get name): ' + (err ? err.message : 'Card not found') });
+            }
+            const card_name = nameResults[0].card_name;
+
+            // 2. Check if user has at least 2 of this card at this level
+            const checkQuery = `
+                SELECT uc.card_count
+                FROM User_Cards uc
+                JOIN Card c ON uc.card_id = c.card_id
+                WHERE uc.user_id = ? AND uc.card_id = ? AND c.level = ?
+            `;
+            connection.query(checkQuery, [userId, card_id, level], (err, results) => {
+                if (err) return res.status(500).json({ error: 'Database error (check): ' + err.message });
+                if (!results[0] || results[0].card_count < 2) {
+                    return res.status(400).json({ error: 'Not enough cards to merge.' });
+                }
+
+                // 3. Remove 2 cards of this card_id
+                const removeQuery = `
+                    UPDATE User_Cards SET card_count = card_count - 2 
+                    WHERE user_id = ? AND card_id = ?
+                `;
+                connection.query(removeQuery, [userId, card_id], (err) => {
+                    if (err) return res.status(500).json({ error: 'Database error (remove): ' + err.message });
+
+                    // 4. Find the card_id of the next level card with the same name
+                    const nextLevel = level + 1;
+                    const findNextCardQuery = `
+                        SELECT card_id FROM Card WHERE card_name = ? AND level = ?
+                    `;
+                    connection.query(findNextCardQuery, [card_name, nextLevel], (err, nextCardResults) => {
+                        if (err || !nextCardResults.length) {
+                            return res.status(500).json({ error: 'Database error (find next): ' + (err ? err.message : 'Next level card not found') });
+                        }
+                        const nextCardId = nextCardResults[0].card_id;
+
+                        // 5. Add 1 card of the next level
+                        const addQuery = `
+                            INSERT INTO User_Cards (user_id, card_id, card_count)
+                            VALUES (?, ?, 1)
+                            ON DUPLICATE KEY UPDATE card_count = card_count + 1
+                        `;
+                        connection.query(addQuery, [userId, nextCardId], (err) => {
+                            if (err) return res.status(500).json({ error: 'Database error (add): ' + err.message });
+                            res.status(200).json({ message: 'Cards merged successfully!' });
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+
     app.post('/logout', authMiddleware, (req, res) => {
         res.clearCookie('token');
         res.status(200).json({ message: 'Logout successful' });
@@ -160,7 +227,7 @@ function RegMenu(app) {
         const { requestId, status } = req.body;
         console.log('Request ID:', requestId, 'Status:', status); // Debugging log
     
-        const query = `UPDATE Friends_Requests SET status = ? WHERE friends_requests_id = ? AND friend_id = ?`;
+        const query = `UPDATE Friends_Requests SET status = ? WHERE friend_request_id = ? AND friend_id = ?`;
         connection.query(query, [status, requestId, req.user.userId], (err) => {
             if (err) {
                 console.error('Error updating friend request:', err.message); // Log detailed error
@@ -182,7 +249,7 @@ function RegMenu(app) {
         `;
     
         const pendingQuery = `
-            SELECT fr.friends_requests_id, u.user_id, u.nickname 
+            SELECT fr.friend_request_id, u.user_id, u.nickname 
             FROM Friends_Requests fr
             JOIN User u ON u.user_id = fr.user_id
             WHERE fr.friend_id = ? AND fr.status = 0

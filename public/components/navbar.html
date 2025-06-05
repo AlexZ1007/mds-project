@@ -19,10 +19,25 @@
       style="font-family: 'Cinzel', serif;">
       COLLECTION
     </a>
-    <a href="/shop.html" class="text-yellow-300 px-6 flex items-center font-bold hover:bg-purple-600 transition"
-      style="font-family: 'Cinzel', serif;">
-      SHOP
-    </a>
+    <div x-data="{ openShop: false }" class="relative flex items-center">
+  <button @mouseenter="openShop = true" @mouseleave="openShop = false"
+    class="text-yellow-300 px-6 flex items-center font-bold hover:bg-purple-600 transition"
+    style="font-family: 'Cinzel', serif;">
+    SHOP
+    <svg class="inline w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </button>
+  <div
+      x-show="openShop"
+      @mouseenter="openShop = true"
+      @mouseleave="openShop = false"
+      class="absolute left-0 mt-12 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+      x-cloak>
+      <a href="/shop.html" class="block px-4 py-2 text-gray-700 hover:bg-purple-100">Pack Shop</a>
+      <a href="/cardShop.html" class="block px-4 py-2 text-gray-700 hover:bg-purple-100">Card Shop</a>
+    </div>
+  </div>
 
 
 
