@@ -48,7 +48,6 @@ async function login() {
 }
 
 async function openPack(pack_info) {
-
   const res = await fetch('/pack', {
     credentials: 'include',
     method: 'POST',
@@ -56,27 +55,10 @@ async function openPack(pack_info) {
     body: JSON.stringify({ pack_info: pack_info })
   }); 
   const data = await res.json();
-  const packResultDiv = document.getElementById('pack-result');
 
   if (res.status === 202) {
-    packResultDiv.innerHTML = '';
-
-    if (data.pack.length === 1) {
-      packResultDiv.className = 'flex justify-center items-center gap-6';
-    } else {
-      packResultDiv.className = 'grid grid-cols-1 md:grid-cols-3 gap-6';
-    }
-
-    data.pack.forEach(card => {
-      const cardDiv = document.createElement('div');
-      cardDiv.className = 'bg-white p-6 rounded-lg shadow-lg flex flex-col items-center w-full md:w-80';
-      cardDiv.innerHTML = `
-        <img src="${card.card_image}" alt="${card.card_name}" class="w-full mb-4"> 
-        <h4 class="text-lg font-semibold text-center">${card.card_name} <span class="text-sm text-gray-500">(Level: ${card.level})</span></h4>
-        <p class="text-sm text-gray-600 text-center">${card.description}</p>
-      `;
-      packResultDiv.appendChild(cardDiv);
-    });
+    // Show the cards in a modal pop-up
+    showPackModal(data.pack);
 
     // Update the balance dynamically
     const userData = await fetchUserData();
@@ -86,9 +68,40 @@ async function openPack(pack_info) {
         coinsElement.textContent = `${userData.balance}`;
       }
     }
+  } else if (data.error && data.error.toLowerCase().includes('not enough coins')) {
+    showNoCoinsModal();
   } else {
-    packResultDiv.innerHTML = `<p class="text-red-500">${data.error}</p>`;
+    // Optionally show error in a modal or as before
+    alert(data.error || 'Failed to open pack.');
   }
+}
+
+
+function showNoCoinsModal() {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50';
+  modal.id = 'no-coins-modal';
+
+  modal.innerHTML = `
+    <div class="bg-white border-8 border-yellow-400 rounded-2xl shadow-lg p-8 max-w-md w-full flex flex-col items-center">
+      <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-3xl" id="close-no-coins-modal">&times;</button>
+      <h2 class="text-2xl font-bold mb-4 text-yellow-600">Not Enough Coins</h2>
+      <p class="text-gray-700 mb-6 text-center">You don't have enough coins to open this pack.<br>Play games to earn more coins!</p>
+      <button id="go-home-btn" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold">Go to Home</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.getElementById('close-no-coins-modal').onclick = () => document.body.removeChild(modal);
+  document.getElementById('go-home-btn').onclick = () => window.location.href = '/home.html';
+
+  // Optional: close modal when clicking outside
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      document.body.removeChild(modal);
+    }
+  });
 }
 
 
@@ -98,7 +111,16 @@ async function createCardModal(card) {
   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50';
   modal.id = 'card-modal';
 
-  // Create the modal content
+  // Only show merge button if enough cards
+  let mergeButtonHtml = '';
+  if ((card.level === 1 || card.level === 2) && card.card_count >= 2) {
+    mergeButtonHtml = `
+      <button id="merge-btn" class="mt-4 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">
+        Merge
+      </button>
+    `;
+  }
+
   modal.innerHTML = `
     <div class="bg-purple-50 border-8 border-purple-500 rounded-2xl shadow-lg p-6 w-11/12 max-w-md relative">
       <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" id="close-modal">
@@ -108,30 +130,119 @@ async function createCardModal(card) {
         <img src="${card.card_image}" alt="${card.card_name}" class="w-auto h-64 mb-4 object-contain">
         <h2 class="text-2xl font-bold mb-4 text-purple-700">${card.card_name}(Level ${card.level})</h2>
         <div class="grid grid-cols-2 gap-4 w-full">
-          <!-- Left Column: Description -->
           <div class="text-gray-700 italic">
             <p>${card.description}</p>
           </div>
-          <!-- Right Column: Mana, HP, and Attack -->
           <div class="text-gray-700">
             <p><strong>Mana:</strong> ${card.mana_points}</p>
             <p><strong>HP:</strong> ${card.HP_points}</p>
             <p><strong>Attack:</strong> ${card.damage}</p>
           </div>
         </div>
+        ${mergeButtonHtml}
       </div>
     </div>
   `;
 
-  // Append the modal to the body
   document.body.appendChild(modal);
 
-  // Add event listener to close the modal
   document.getElementById('close-modal').addEventListener('click', () => {
     document.body.removeChild(modal);
   });
 
-  // Close the modal when clicking outside the content
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      document.body.removeChild(modal);
+    }
+  });
+
+  // Add event listener for merge button if it exists
+  if ((card.level === 1 || card.level === 2) && card.card_count >= 2) {
+    document.getElementById('merge-btn').onclick = () => {
+      document.body.removeChild(modal);
+      showMergeModal(card);
+    };
+  }
+}
+
+async function showMergeModal(card) {
+  // Create the modal container
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50';
+  modal.id = 'merge-modal';
+
+  // Set the modal's HTML
+  modal.innerHTML = `
+    <div class="bg-purple-50 border-8 border-purple-500 rounded-2xl shadow-lg p-8 w-[40rem] relative flex flex-col items-center">
+      <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" id="close-merge-modal">&times;</button>
+      <div class="flex items-center justify-center gap-12">
+        <img src="${card.card_image}" alt="${card.card_name}" class="w-40 h-60 object-contain rounded"/>
+        <span class="text-5xl font-bold text-purple-600">→</span>
+        <img src="${card.card_image}" alt="${card.card_name}" class="w-40 h-60 object-contain rounded opacity-70"/>
+      </div>
+      <div class="mt-8 text-center">
+        <p class="text-lg">Merge two <b>${card.card_name}</b> (Level ${card.level}) to get one Level ${card.level + 1} card.</p>
+        <button id="confirm-merge-btn" class="mt-8 bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded text-xl">
+          Merge Now
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.getElementById('close-merge-modal').onclick = () => document.body.removeChild(modal);
+
+  document.getElementById('confirm-merge-btn').onclick = async () => {
+    const cardId = card.card_id || card.id;
+    const level = card.level;
+
+    const res = await fetch('/merge-card', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ card_id: cardId, level: level })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.body.removeChild(modal);
+      location.reload(); // Just reload, no alert
+    } else {
+      alert(data.error || 'Merge failed.');
+    }
+  };
+};
+
+
+function showPackModal(cards) {
+  // Create the modal container
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50';
+  modal.id = 'pack-modal';
+
+  // Build the cards HTML
+  const cardsHtml = cards.map(card => `
+    <div class="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center w-44">
+      <img src="${card.card_image}" alt="${card.card_name}" class="w-full mb-2">
+      <h4 class="text-base font-semibold text-center">${card.card_name} <span class="text-xs text-gray-500">(Level: ${card.level})</span></h4>
+      <p class="text-xs text-gray-600 text-center">${card.description}</p>
+    </div>
+  `).join('');
+
+  // Modal content: smaller and cards in a row
+  modal.innerHTML = `
+    <div class="bg-purple-50 border-8 border-purple-500 rounded-2xl shadow-lg p-6 max-w-xl w-full relative flex flex-col items-center">
+      <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-3xl" id="close-pack-modal">&times;</button>
+      <h2 class="text-xl font-bold mb-4 text-purple-700">You received:</h2>
+      <div class="flex flex-row justify-center gap-4">${cardsHtml}</div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.getElementById('close-pack-modal').onclick = () => document.body.removeChild(modal);
+
+  // Optional: close modal when clicking outside
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       document.body.removeChild(modal);

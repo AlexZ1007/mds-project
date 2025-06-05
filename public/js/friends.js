@@ -60,8 +60,8 @@ async function fetchFriendsAndRequests() {
         requestDiv.innerHTML = `
             <span>${request.nickname}</span>
             <div>
-                <button onclick="respondToRequest(${request.friends_requests_id}, 1)" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">Accept</button>
-                <button onclick="respondToRequest(${request.friends_requests_id}, 2)" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Deny</button>
+                <button onclick="respondToRequest(${request.friend_request_id}, 1)" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">Accept</button>
+                <button onclick="respondToRequest(${request.friend_request_id}, 2)" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Deny</button>
             </div>
         `;
         pendingDiv.appendChild(requestDiv);
