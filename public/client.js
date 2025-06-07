@@ -120,6 +120,13 @@ async function createCardModal(card) {
       </button>
     `;
   }
+  // Only show sell button if at least 1 card
+  let sellButtonHtml = '';
+  if (card.card_count > 0) {
+    sellButtonHtml = `
+      <button id="sell-btn" class="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">Sell</button>
+    `;
+  }
 
   modal.innerHTML = `
     <div class="bg-purple-50 border-8 border-purple-500 rounded-2xl shadow-lg p-6 w-11/12 max-w-md relative">
@@ -140,6 +147,7 @@ async function createCardModal(card) {
           </div>
         </div>
         ${mergeButtonHtml}
+        ${sellButtonHtml}
       </div>
     </div>
   `;
@@ -163,7 +171,58 @@ async function createCardModal(card) {
       showMergeModal(card);
     };
   }
+  // Add event listener for sell button if it exists
+  if (card.card_count > 0) {
+    document.getElementById('sell-btn').onclick = () => {
+      showPriceModal((price) => {
+        fetch('/shop/list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ card_id: card.card_id, price: Number(price) })
+        }).then(res => res.json()).then(data => {
+          showToast(data.message || data.error);
+          setTimeout(() => location.reload(), 1200); // See next step
+        });
+      });
+    };
+  }
 }
+
+function showPriceModal(onSubmit) {
+  // Remove any existing modal
+  const existing = document.getElementById('price-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'price-modal';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50';
+
+  modal.innerHTML = `
+    <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center max-w-xs w-full">
+      <h2 class="text-xl font-bold mb-4 text-purple-700">Set Card Price</h2>
+      <input id="price-input" type="number" min="1" placeholder="Enter price" class="border rounded px-4 py-2 mb-4 w-full text-center" />
+      <div class="flex gap-4">
+        <button id="price-cancel" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+        <button id="price-ok" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">OK</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  document.getElementById('price-cancel').onclick = () => modal.remove();
+  document.getElementById('price-ok').onclick = () => {
+    const price = Number(document.getElementById('price-input').value);
+    if (price > 0) {
+      modal.remove();
+      onSubmit(price);
+    } else {
+      document.getElementById('price-input').classList.add('border-red-500');
+    }
+  };
+}
+
+
 
 async function showMergeModal(card) {
   // Create the modal container
@@ -276,9 +335,8 @@ async function initializeCardClickEvents(cards) {
 
 async function fetchUserData(userId = null) { 
   try {
-
-    const url = userId ? `/user-data?profile_user_id=${encodeURIComponent(userId)}` : '/user-data'; // Adjust the URL based on whether userId is provided
-     const response = await fetch(url, { credentials: 'include' });
+    const url = userId ? `/user-data?profile_user_id=${encodeURIComponent(userId)}` : '/user-data';
+    const response = await fetch(url, { credentials: 'include' });
     if (!response.ok) {
       console.error('Failed to fetch user data:', response.statusText);
       return;
@@ -360,3 +418,18 @@ window.addEventListener("load", () => {
     loadNavbar(); // Load the navbar only on the specified pages
   }
 });
+
+function showToast(message, duration = 2500) {
+  const existing = document.getElementById('toast-message');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'toast-message';
+  toast.textContent = message;
+  toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-purple-700 text-white px-6 py-3 rounded-lg shadow-lg z-50 text-lg';
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, duration);
+}

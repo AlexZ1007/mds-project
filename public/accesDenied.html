@@ -5,29 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Access Denied</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 font-sans h-full flex flex-col">
-    <header class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 shadow h-16 px-6 flex justify-between items-center">
+
+    <header class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 shadow h-20 px-6 flex justify-between items-center">
         <a href="/home.html" class="text-3xl font-bold text-yellow-300 hover:text-yellow-400 transition" style="font-family: 'Cinzel', serif;">
             Arcana
         </a>
         <div class="flex items-center space-x-4">
-            <a href="/home.html" class="text-yellow-300 px-6 font-bold hover:bg-purple-600 transition" style="font-family: 'Cinzel', serif;">
+            <a href="/home.html" class="text-yellow-300 px-6 font-bold hover:bg-purple-600 transition rounded-lg" style="font-family: 'Cinzel', serif;">
                 HOME
             </a>
-            <a href="/logout.html" class="text-yellow-300 px-6 font-bold hover:bg-purple-600 transition" style="font-family: 'Cinzel', serif;">
+            <a href="/logout.html" class="text-yellow-300 px-6 font-bold hover:bg-purple-600 transition rounded-lg" style="font-family: 'Cinzel', serif;">
                 LOGOUT
             </a>
         </div>
     </header>
 
     <main class="flex-grow flex items-center justify-center">
-        <div class="text-center bg-white p-8 rounded-2xl shadow-lg">
-            <h1 class="text-4xl font-bold text-red-600 mb-4">Access Denied</h1>
-            <p class="text-gray-700 text-lg mb-6">You are already logged in.</p>
-            <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-lg transition">
-                Go Back to Home
-            </a>
+        <div class="text-center bg-white p-12 rounded-2xl shadow-2xl max-w-lg w-full">
+            <h1 class="text-5xl font-bold text-red-600 mb-6" style="font-family: 'Cinzel', serif;">Access Denied</h1>
+            <p class="text-gray-700 text-lg mb-8" style="font-family: 'Uncial Antiqua', cursive;">
+                You do not have permission to view this page.<br>
+                Please return to the home page or log out.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/home.html" class="bg-yellow-500 hover:bg-yellow-600 text-purple-900 font-bold px-8 py-3 rounded-lg transition text-lg" style="font-family: 'Cinzel', serif;">
+                    Go to Home
+                </a>
+                <a href="/logout.html" class="bg-purple-700 hover:bg-purple-800 text-yellow-300 font-bold px-8 py-3 rounded-lg transition text-lg" style="font-family: 'Cinzel', serif;">
+                    Logout
+                </a>
+            </div>
         </div>
     </main>
 

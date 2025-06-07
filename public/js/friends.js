@@ -30,7 +30,7 @@ async function searchUsers() {
 }
 
 async function sendFriendRequest(friendId) {
-    console.log('Sending friend request to:', friendId); // Debugging log
+    console.log('Sending friend request to:', friendId); 
 
     const res = await fetch('/friends/request', {
         method: 'POST',
@@ -39,13 +39,29 @@ async function sendFriendRequest(friendId) {
         body: JSON.stringify({ friendId })
     });
 
-    const data = await res.json();
+    const data = await res.json(); 
+
     if (res.status === 200) {
-        alert(data.message);
+        showToast(data.message || "Friend request sent!");
+        setTimeout(() => location.reload(), 1200);
     } else {
-        console.error('Error sending friend request:', data.error); // Debugging log
-        alert(data.error);
+        showToast(data.error || "Error sending friend request.");
     }
+}
+
+function showToast(message, duration = 2500) {
+    const existing = document.getElementById('toast-message');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'toast-message';
+    toast.textContent = message;
+    toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-purple-700 text-white px-6 py-3 rounded-lg shadow-lg z-50 text-lg';
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, duration);
 }
 
 async function fetchFriendsAndRequests() {
@@ -85,7 +101,7 @@ function viewProfile(userId) {
 }
 
 async function respondToRequest(requestId, status) {
-    console.log('Responding to request:', requestId, 'Status:', status); // Debugging log
+    console.log('Responding to request:', requestId, 'Status:', status); 
 
     const res = await fetch('/friends/respond', {
         method: 'POST',
@@ -99,7 +115,7 @@ async function respondToRequest(requestId, status) {
         alert(data.message);
         fetchFriendsAndRequests();
     } else {
-        console.error('Error responding to friend request:', data.error); // Debugging log
+        console.error('Error responding to friend request:', data.error); 
         alert(data.error);
     }
 }

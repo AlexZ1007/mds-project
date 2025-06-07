@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <title>Card Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="client.js"></script>
+</head>
+<body class="bg-gray-100 font-sans h-full flex flex-col">
+
+  <!-- Navbar will be loaded here -->
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      loadNavbar();
+    });
+  </script>
+
+  <header>
+    <div class="w-full text-center mt-8 mb-8">
+      <h1 class="text-4xl font-bold text-center mb-2" style="font-family: 'Cinzel', serif;">Card Shop</h1>
+      <p class="text-lg text-gray-600" style="font-family: 'Uncial Antiqua', cursive;">Buy cards from other players!</p>
+    </div>
+  </header>
+
+  <main class="flex-grow w-full max-w-6xl p-6 mx-auto flex flex-col items-center">
+    <div id="shop-cards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full"></div>
+  </main>
+
+  <footer class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-yellow-300 text-center p-6 mt-auto font-semibold w-full" style="font-family: 'Cinzel', serif;">
+    <p>&copy; 2025 Arcana. All mystical rights reserved.</p>
+  </footer>
+
+  <script>
+    async function fetchShopCards() {
+      const res = await fetch('/shop/cards', { credentials: 'include' });
+      const cards = await res.json();
+      const shopDiv = document.getElementById('shop-cards');
+      shopDiv.innerHTML = '';
+      cards.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card-container flex flex-col items-center bg-white rounded-xl shadow-lg p-4 cursor-pointer hover:scale-105 transition-transform';
+        cardDiv.innerHTML = `
+          <img src="${card.card_image}" alt="${card.card_name}" class="w-32 h-40 object-contain mb-2 rounded">
+          <div class="font-bold text-lg text-purple-800 mb-1" style="font-family: 'Cinzel', serif;">${card.card_name}</div>
+          <div class="text-sm text-gray-600 mb-2">Level ${card.level}</div>
+          <div class="text-yellow-700 font-semibold mb-2">${card.price_listed} Coins</div>
+          <button onclick="event.stopPropagation(); buyCard(${card.shop_ID})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Buy</button>
+        `;
+        // Show card details modal on card click (except the Buy button)
+        cardDiv.addEventListener('click', (e) => {
+          if (!e.target.matches('button')) {
+            // For shop cards, you may want to show a simpler modal (no merge/sell), or reuse createCardModal
+            createCardModal(card);
+          }
+        });
+        shopDiv.appendChild(cardDiv);
+      });
+    }
+
+    async function buyCard(shop_ID) {
+      const res = await fetch('/shop/buy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ shop_ID })
+      });
+      const data = await res.json();
+      if (res.status === 200) {
+        showToast('Card purchased!');
+        fetchShopCards();
+      } else {
+        alert(data.error || 'Purchase failed.');
+      }
+    }
+
+    function showToast(message, duration = 2500) {
+        const existing = document.getElementById('toast-message');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'toast-message';
+        toast.textContent = message;
+        toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-purple-700 text-white px-6 py-3 rounded-lg shadow-lg z-50 text-lg';
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, duration);
+    }
+
+    window.addEventListener('load', fetchShopCards);
+  </script>
+</body>
+</html>
