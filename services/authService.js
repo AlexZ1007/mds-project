@@ -96,7 +96,7 @@ class authService {
       card_count: row.card_count,
 
     }));
-    console.log(user);
+
     return user;
   }
 
@@ -105,7 +105,8 @@ class authService {
       connection.query(
         `SELECT u.nickname, u.email, u.balance, u.elo, u.matches_played,
         u.matches_won, d.division_name
-        FROM User u JOIN Division d ON u.division_id = d.division_id
+        FROM User u 
+        left JOIN Division d ON u.division_id = d.division_id
         WHERE u.user_id = ?`,
         [userId],
         (err, results) => {
