@@ -415,7 +415,39 @@ app.post('/shop/buy', authMiddleware, (req, res) => {
         });
     });
 });
-    
+ 
+// GET: Deckul actual al utilizatorului
+app.get('/deck', authMiddleware, async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        const userDeck = await collection.getUserDeck(userId);
+        res.status(200).json({ deck: userDeck });
+    } catch (error) {
+        console.error("Error fetching deck:", error);
+        res.status(500).json({ error: 'Failed to fetch deck.' });
+    }
+});
+
+// POST: Salvare deck nou
+app.post('/deck', authMiddleware, async (req, res) => {
+    const userId = req.user.userId;
+    const { deck } = req.body;
+
+    if (!Array.isArray(deck)) {
+        return res.status(400).json({ error: 'Invalid deck format' });
+    }
+
+    try {
+        await collection.saveUserDeck(userId, deck);
+        res.status(200).json({ message: 'Deck saved successfully' });
+    } catch (error) {
+        console.error("Error saving deck:", error);
+        res.status(500).json({ error: 'Failed to save deck.' });
+    }
+});
+
+
 }
 
 module.exports = RegMenu;
