@@ -61,10 +61,35 @@
       </div>
   
       <!-- Right Component: Placeholder for Another Section -->
-      <div class="flex-1 bg-white border border-gray-300 rounded-lg shadow-lg p-6">
-        <h3 class="text-xl font-semibold mb-4 text-purple-700">Another Section</h3>
-        <p class="text-gray-600">This is a placeholder for another section. You can add content here as needed.</p>
+      <div class="flex-1 bg-white border border-gray-300 rounded-lg shadow-lg p-6 flex flex-col items-center">
+  <h3 class="text-xl font-semibold mb-6 text-purple-700">Your Match Stats</h3>
+  <div class="flex flex-row items-center gap-6 w-full justify-center">
+    <!-- Pie Chart -->
+    <canvas id="matchPieChart" width="100" height="100" style="width:100px; height:100px;"></canvas>
+    <!-- Stats and Labels -->
+    <div class="flex flex-col justify-center gap-2">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-4 h-4 rounded-full" style="background:#a78bfa"></span>
+        <span class="text-sm text-gray-700">Wins:</span>
+        <span id="pie-wins" class="font-semibold text-purple-700"></span>
       </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-4 h-4 rounded-full" style="background:#fbbf24"></span>
+        <span class="text-sm text-gray-700">Losses:</span>
+        <span id="pie-losses" class="font-semibold text-yellow-700"></span>
+      </div>
+      <div class="flex items-center gap-2 mt-2">
+        <span class="text-xs text-gray-500">Total:</span>
+        <span id="pie-played" class="font-semibold text-gray-700"></span>
+      </div>
+    </div>
+  </div>
+  <a href="profile.html" class="mt-8 bg-yellow-500 text-purple-900 px-4 py-2 rounded-lg hover:bg-yellow-600 font-semibold transition text-sm">
+    View Profile
+  </a>
+</div>
+
+
     </div>
   </main>
 
@@ -78,12 +103,50 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/findMatch.js"></script>
   <script src="js/fetchCollection.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <script>
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
       // Fetch and display cards in the "Your Collection" section
       fetchCollection('home-collection');
+
+      // Fetch user stats for the pie chart
+      const res = await fetch('/user-data', { credentials: 'include' });
+      if (res.ok) {
+        const user = await res.json();
+        const wins = user.matches_won || 0;
+        const played = user.matches_played || 0;
+        const losses = Math.max(played - wins, 0);
+
+        document.getElementById('pie-wins').textContent = wins;
+        document.getElementById('pie-losses').textContent = losses;
+        document.getElementById('pie-played').textContent = played;
+
+        const ctx = document.getElementById('matchPieChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ['Wins', 'Losses'],
+            datasets: [{
+              data: [wins, losses],
+              backgroundColor: ['#a78bfa', '#fbbf24'],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: false,
+            plugins: {
+              legend: {
+                display: false // Hide default legend
+              }
+            }
+          }
+        });
+      }
     });
   </script>
+
 </body>
 
 </html>

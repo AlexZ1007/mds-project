@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -8,55 +5,174 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Arcana - Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Alpine.js for any dropdowns -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="client.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 font-sans h-full flex flex-col">
 
-  <header> 
-    <div class="w-full text-center mt-6 mb-6">
-      <h1 class="text-4xl font-bold text-center mb-6" style="font-family: 'Cinzel', serif;">SETTINGS</h1>
+  <header>
+    <div class="w-full text-center mt-8 mb-8">
+      <h1 class="text-4xl font-bold text-center mb-2" style="font-family: 'Cinzel', serif;">Your Arcana Profile</h1>
+      <p class="text-lg text-gray-600" style="font-family: 'Uncial Antiqua', cursive;">See your journey and stats</p>
     </div>
-
   </header>
   
-  <!-- Main Profile Content -->
-  <main class="flex-grow py-12 px-6 max-w-4xl mx-auto">
 
-    <!-- Sections -->
-    <div class="grid md:grid-cols-2 gap-8">
-      
-      
-      <section class="bg-white p-8 rounded-2xl shadow">
-        <h3 class="text-xl font-semibold mb-4 text-orange-600">Your Profile</h3>
-        <ul class="space-y-2 text-gray-700">
-          <li><strong>Nickname:</strong> <span id="profile-nickname">Loading...</span></li>
-          <li><strong>Email:</strong> <span id="profile-email">Loading...</span></li>
-        </ul>
-      </section>
+  <main class="flex-grow py-12 px-6 max-w-4xl mx-auto flex flex-col gap-10">
+    <!-- Profile Info -->
+    <section class="bg-white p-10 rounded-2xl shadow flex flex-col items-center mb-6 w-full">
+      <h2 class="text-2xl font-bold mb-2 text-purple-700" style="font-family: 'Cinzel', serif;">
+        <span id="profile-nickname">Loading...</span>
+      </h2>
+      <p class="text-gray-500 mb-2" id="profile-email">Loading...</p>
+      <div class="flex items-center gap-6 mt-2">
+        <span class="bg-yellow-200 text-yellow-800 px-4 py-2 rounded-full text-base font-semibold flex items-center gap-2">
+          <img src="/img/coins.png" class="w-6 h-6 inline" alt="Coins">
+          <span id="profile-balance">0</span> Coins
+        </span>
+        <span class="bg-blue-200 text-blue-800 px-4 py-2 rounded-full text-base font-semibold flex items-center gap-2">
+          <img src="/img/elo.png" class="w-6 h-6 inline" alt="ELO">
+          <span id="profile-elo">0</span> ELO
+        </span>
+      </div>
+      <div class="mt-2 text-base text-gray-600" id="profile-division"></div>
+    </section>
 
-      
-      <section class="bg-white p-8 rounded-2xl shadow">
-        <h3 class="text-xl font-semibold mb-4 text-orange-600">Your Stats</h3>
-        <ul class="space-y-2 text-gray-700">
-          <li><strong>Matches Played:</strong> <span id="matches-played">Loading...</span></li>
-          <li><strong>Matches Won:</strong> <span id="matches-won">Loading...</span></li>
-          <li><strong>Win Rate:</strong> <span id="win-rate">Loading...</span></li>
-        </ul>
-      </section>
-
-    </div>
+    <!-- Stats Section -->
+    <section class="bg-white p-10 rounded-2xl shadow flex flex-col items-center w-full">
+      <h3 class="text-2xl font-semibold mb-8 text-orange-600" style="font-family: 'Cinzel', serif;">Your Stats</h3>
+      <div class="grid md:grid-cols-3 gap-10 w-full">
+        <!-- Match Stats -->
+        <div class="bg-purple-50 rounded-xl shadow p-8">
+          <h4 class="text-lg font-semibold mb-4 text-purple-700">Match Stats</h4>
+          <ul class="space-y-3 text-gray-700 text-base">
+            <li><strong>Played:</strong> <span id="matches-played">Loading...</span></li>
+            <li><strong>Won:</strong> <span id="matches-won">Loading...</span></li>
+            <li><strong>Win Rate:</strong> <span id="win-rate">Loading...</span></li>
+          </ul>
+        </div>
+        <!-- Card Stats -->
+        <div class="bg-yellow-50 rounded-xl shadow p-8">
+          <h4 class="text-lg font-semibold mb-4 text-yellow-700">Card Stats</h4>
+          <ul class="space-y-3 text-gray-700 text-base">
+            <li><strong>Owned (unique):</strong> <span id="cards-owned">Loading...</span> / <span id="cards-total">Loading...</span></li>
+            <li><strong>Total Cards (all):</strong> <span id="cards-all">Loading...</span></li>
+            <li><strong>With Duplicates:</strong> <span id="cards-duplicates">Loading...</span></li>
+            <li><strong>Most Owned Card:</strong> <span id="most-owned-card">Loading...</span></li>
+          </ul>
+        </div>
+        <!-- Friends Stats -->
+        <div class="bg-blue-50 rounded-xl shadow p-8">
+          <h4 class="text-lg font-semibold mb-4 text-blue-700">Friends</h4>
+          <ul class="space-y-3 text-gray-700 text-base">
+            <li><strong>Friends:</strong> <span id="friends-count">Loading...</span></li>
+            <li><strong>Best Friend:</strong> <span id="best-friend">Loading...</span></li>
+            <li><strong>Most Recent Friend:</strong> <span id="recent-friend">Loading...</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Footer -->
+
   <footer class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-yellow-300 text-center p-6 mt-auto font-semibold" style="font-family: 'Cinzel', serif;">
     <p>&copy; 2025 Arcana. All mystical rights reserved.</p>
   </footer>
   
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      const profileUserId = params.get('userid');
 
-  <script src="js/profileStats.js"></script>
+      let user;
+      try {
+        if (profileUserId) {
+          user = await fetchUserData(profileUserId);
+        } else {
+          user = await fetchUserData();
+        }
+        if (!user || user.error) throw new Error(user.error);
+      } catch (e) {
+        // If not allowed, redirect
+        window.location.href = '/accesDenied.html';
+        return;
+      }
 
+      document.getElementById('profile-nickname').textContent = user.nickname || 'Unknown';
+      document.getElementById('profile-email').textContent = user.email || '';
+      document.getElementById('profile-balance').textContent = user.balance ?? '0';
+      document.getElementById('profile-elo').textContent = user.elo ?? '0';
+      document.getElementById('profile-division').textContent = user.division_name ? `Division: ${user.division_name}` : '';
+
+      // For stats section
+      document.getElementById('matches-played').textContent = user.matches_played ?? '0';
+      document.getElementById('matches-won').textContent = user.matches_won ?? '0';
+      document.getElementById('win-rate').textContent =
+        user.matches_played && user.matches_played > 0
+          ? Math.round((user.matches_won / user.matches_played) * 100) + '%'
+          : '0%';
+
+      // Fetch card collection for stats (pass userid if present)
+      let cardsRes;
+      if (profileUserId) {
+        cardsRes = await fetch(`/collection?userid=${profileUserId}`, { credentials: 'include' });
+      } else {
+        cardsRes = await fetch('/collection', { credentials: 'include' });
+      }
+      const cardsData = await cardsRes.json();
+      const cards = cardsData.cards || [];
+
+      // Cards owned (unique, count > 0)
+      const owned = cards.filter(card => card.card_count > 0);
+      document.getElementById('cards-owned').textContent = owned.length;
+
+      // Fetch total cards from /all-cards as before
+      let totalCards = 45; // fallback if fetch fails
+      try {
+        const allCardsRes = await fetch('/all-cards', { credentials: 'include' });
+        if (allCardsRes.ok) {
+          const allCardsData = await allCardsRes.json();
+          totalCards = Array.isArray(allCardsData) ? allCardsData.length :
+                      (Array.isArray(allCardsData.cards) ? allCardsData.cards.length : 45);
+        }
+      } catch (e) {}
+      document.getElementById('cards-total').textContent = totalCards;
+
+      // Total cards (all, including duplicates)
+      const totalAll = owned.reduce((sum, card) => sum + card.card_count, 0);
+      document.getElementById('cards-all').textContent = totalAll;
+
+      // Cards with duplicates (count > 1)
+      const duplicates = owned.filter(card => card.card_count > 1);
+      document.getElementById('cards-duplicates').textContent = duplicates.length;
+
+      // Most owned card
+      let mostOwned = owned.reduce((max, card) => card.card_count > max.card_count ? card : max, {card_count: 0, card_name: "None"});
+      document.getElementById('most-owned-card').textContent = mostOwned.card_name ? `${mostOwned.card_name} (${mostOwned.card_count})` : "None";
+
+      // Friends stats (pass userid if present)
+      let friendsRes;
+      if (profileUserId) {
+        friendsRes = await fetch(`/friends?userid=${profileUserId}`, { credentials: 'include' });
+      } else {
+        friendsRes = await fetch('/friends', { credentials: 'include' });
+      }
+      const friendsData = await friendsRes.json();
+      const friends = friendsData.friends || [];
+      document.getElementById('friends-count').textContent = friends.length;
+
+      // Best friend (most matches played with, fallback to first)
+      let bestFriend = "None";
+      let recentFriend = "None";
+      if (friends.length > 0) {
+        bestFriend = friends[0].nickname || friends[0].name || "Unknown";
+        recentFriend = friends[friends.length - 1].nickname || friends[friends.length - 1].name || "Unknown";
+      }
+      document.getElementById('best-friend').textContent = bestFriend;
+      document.getElementById('recent-friend').textContent = recentFriend;
+    });
+  </script>
 </body>
 </html>

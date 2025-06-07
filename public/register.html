@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
-  <title>Auth App</title>
+  <title>Arcana - Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
-
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         const res = await fetch('/check-loggedin', { credentials: 'include' });
-        console.log(res.status);
         if (res.status === 200) {
-          const data = await res.json();
+          await res.json();
           window.location.href = '/accesDenied.html';
         }
       } catch (err) {
@@ -19,25 +20,32 @@
       }
     });
   </script>
-
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex items-center justify-center">
-  <div class="w-full max-w-md p-6 bg-white rounded-2xl shadow-lg space-y-8">
-    <h1 class="text-3xl font-bold text-center">Auth Demo</h1>
+<body class="bg-gray-100 font-sans h-full flex flex-col">
 
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Register</h2>
-      <input id="reg-user" placeholder="Username" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input id="reg-pass" placeholder="Password" type="password" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input id="reg-email" placeholder="Email" type="email"  class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <button onclick="register()" class="w-full bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700">Register</button>
-      <a href="/index.html" class="w-full block text-center bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700">Back</a>
-      <p id="reg-msg" class="text-sm text-red-500"></p>
-
+  <header>
+    <div class="w-full text-center mt-8 mb-8">
+      <h1 class="text-4xl font-bold text-center mb-2" style="font-family: 'Cinzel', serif;">Arcana Register</h1>
+      <p class="text-lg text-gray-600" style="font-family: 'Uncial Antiqua', cursive;">Join the mystical realm</p>
     </div>
+  </header>
 
-  </div>
+  <main class="flex-grow flex items-center justify-center">
+    <div class="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg space-y-8">
+      <h2 class="text-2xl font-semibold text-center mb-4" style="font-family: 'Cinzel', serif;">Register</h2>
+      <input id="reg-user" placeholder="Username" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
+      <input id="reg-pass" placeholder="Password" type="password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
+      <input id="reg-email" placeholder="Email" type="email"  class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
+      <button onclick="register()" class="w-full bg-purple-700 text-white p-3 rounded-lg hover:bg-purple-800 font-semibold transition mb-2">Register</button>
+      <p id="reg-msg" class="text-sm text-red-500 text-center"></p>
+      <a href="/login.html" class="block text-center bg-yellow-500 text-purple-900 p-2 rounded-lg hover:bg-yellow-600 font-semibold transition mb-2">Login</a>
+      <a href="/index.html" class="block text-center bg-gray-200 text-purple-700 p-2 rounded-lg hover:bg-gray-300 font-semibold transition">Back</a>
+    </div>
+  </main>
 
+  <footer class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-yellow-300 text-center p-6 mt-auto font-semibold w-full" style="font-family: 'Cinzel', serif;">
+    <p>&copy; 2025 Arcana. All mystical rights reserved.</p>
+  </footer>
   <script src="client.js"></script>
 </body>
 </html>
