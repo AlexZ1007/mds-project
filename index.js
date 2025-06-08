@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cookieParser = require('cookie-parser');
 const { registerGameEvents } = require("./gameSockets");
+const { spawn } = require('child_process')
 
 const app = express();
 
@@ -15,6 +16,16 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cookieParser());
 app.use(express.static("public"));
+
+// starts the Python ML API
+const pythonApi = spawn('python', ['services/ml/price_api.py'], {
+  stdio: 'inherit', // this will pipe the Python output to the Node console
+});
+
+// handles Python process exit
+pythonApi.on('close', (code) => {
+  console.log(`Python ML API exited with code ${code}`);
+});
 
 const match_queue = [];
 const lobbies = {};
