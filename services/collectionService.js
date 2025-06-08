@@ -21,6 +21,60 @@ class CollectionService{
         });
         return result;
     }
+
+    saveUserDeck(userId, deckArray) {
+        return new Promise((resolve, reject) => {
+            connection.query('DELETE FROM Deck WHERE user_id = ?', [userId], (err) => {
+                if (err) return reject(err);
+    
+                const insertPromises = [];
+    
+                for (let i = 0; i < deckArray.length; i++) {
+                    const card = deckArray[i];
+                    if (card) {
+                        insertPromises.push(
+                            new Promise((res, rej) => {
+                                connection.query(
+                                    'INSERT INTO Deck (user_id, card_id, position) VALUES (?, ?, ?)',
+                                    [userId, card.card_id, i],
+                                    (err) => (err ? rej(err) : res())
+                                );
+                            })
+                        );
+                    }
+                }
+    
+                Promise.all(insertPromises)
+                    .then(() => resolve())
+                    .catch(reject);
+            });
+        });
+
+    }
+    
+    
+    
+    async getUserDeck(userId) {
+        return new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT d.position, c.card_id, c.card_name, c.card_image
+                 FROM Deck d
+                 JOIN Card c ON d.card_id = c.card_id
+                 WHERE d.user_id = ?
+                 ORDER BY d.position ASC`,
+                [userId],
+                (err, results) => {
+                    if (err) return reject(err);
+                    const deck = Array(12).fill(null);
+                    results.forEach(row => {
+                        deck[row.position] = row;
+                    });
+                    resolve(deck);
+                }
+            );
+        });
+    }
+    
 }
 
 module.exports = CollectionService;
