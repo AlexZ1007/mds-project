@@ -184,12 +184,12 @@ async function createCardModal(card) {
           showToast(data.message || data.error);
           setTimeout(() => location.reload(), 1200); // See next step
         });
-      });
+      }, card.card_id);
     };
   }
 }
 
-function showPriceModal(onSubmit) {
+function showPriceModal(onSubmit, cardId = null) {
   // Remove any existing modal
   const existing = document.getElementById('price-modal');
   if (existing) existing.remove();
@@ -201,6 +201,7 @@ function showPriceModal(onSubmit) {
   modal.innerHTML = `
     <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center max-w-xs w-full">
       <h2 class="text-xl font-bold mb-4 text-purple-700">Set Card Price</h2>
+      <div id="predicted-price" class="mb-2 text-purple-600"></div>
       <input id="price-input" type="number" min="1" placeholder="Enter price" class="border rounded px-4 py-2 mb-4 w-full text-center" />
       <div class="flex gap-4">
         <button id="price-cancel" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
@@ -209,6 +210,28 @@ function showPriceModal(onSubmit) {
     </div>
   `;
   document.body.appendChild(modal);
+
+  // Fetch and display predicted price if cardId is provided
+  if (cardId) {
+    fetch('/predict-price', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ card_id: cardId })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.predicted_price !== undefined) {
+          document.getElementById('predicted-price').textContent =
+            `Suggested price: ${data.predicted_price} coins`;
+        } else if (data.error) {
+          document.getElementById('predicted-price').textContent = 'Prediction unavailable';
+        }
+      })
+      .catch(() => {
+        document.getElementById('predicted-price').textContent = 'Prediction unavailable';
+      });
+  }
 
   document.getElementById('price-cancel').onclick = () => modal.remove();
   document.getElementById('price-ok').onclick = () => {

@@ -4,6 +4,7 @@ function RegMenu(app) {
     const express = require("express");
     const jwt = require('jsonwebtoken');
     const connection = require('./database');
+    const axios = require('axios');
 
     const AuthService = require('../services/authService');
     const ShopService = require('../services/shopService');
@@ -415,6 +416,39 @@ app.post('/shop/buy', authMiddleware, (req, res) => {
         });
     });
 });
+
+
+
+app.post('/predict-price', authMiddleware, (req, res) => {
+    const { card_id } = req.body;
+    // Fetch card features from DB
+    connection.query(
+        'SELECT level, damage, HP_points, mana_points FROM Card WHERE card_id = ?',
+        [card_id],
+        async (err, results) => {
+            if (err || !results.length) {
+                return res.status(500).json({ error: 'Database error or card not found.' });
+            }
+            const card = results[0];
+            try {
+                const response = await axios.post('http://localhost:5001/predict', {
+                    level: card.level,
+                    damage: card.damage,
+                    HP_points: card.HP_points,
+                    mana_points: card.mana_points,
+                    sold: 1,
+                    time_on_market: 0 // always 0 for new listing
+                });
+                const predicted_price = response.data.predicted_price;
+                res.json({ predicted_price });
+            } catch (e) {
+                console.error('Prediction API error:', e.message);
+                res.status(500).json({ error: 'Prediction service unavailable.' });
+            }
+        }
+    );
+});
+    
  
 // GET: Deckul actual al utilizatorului
 app.post('/deck', authMiddleware, async (req, res) => {
