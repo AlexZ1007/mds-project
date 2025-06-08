@@ -19,15 +19,30 @@
 
   </header>
 
-  
-  <main >
-    <div class="flex-grow p-6 main-container" >
-      <div id="card-collection" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <!-- Cards will be dynamically loaded here -->
+
+  <main>
+    <div class="flex gap-8 p-6">
+      <!-- Card Collection (stânga) -->
+      <div class="w-1/2">
+        <div id="card-collection" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
       </div>
-      <div class="empty-space"></div>
+  
+      <!-- Deck (dreapta) -->
+      <div class="w-1/2">
+        <div id="deck-container" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 border-2 border-gray-400 p-4 rounded-xl bg-white shadow-lg">
+          <!-- Sloturi de deck generate din JS -->
+        </div>
+
+        <button onclick="saveDeckToServer()" class="mt-4 w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded shadow-md transition duration-200" style="font-family: 'Cinzel', serif;">
+          Save My Deck
+        </button>
+      </div>
+</div>
+
+      
     </div>
   </main>
+  
 
   <footer class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-yellow-300 text-center p-6 mt-auto font-semibold" style="font-family: 'Cinzel', serif;">
     <p>&copy; 2025 Arcana. All mystical rights reserved.</p>
@@ -35,4 +50,7 @@
 
   <script src="js/fetchCollection.js"></script>
 </body>
+
+<div id="bubble-message" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 hidden bg-yellow-100 text-yellow-900 border border-yellow-400 rounded px-6 py-4 shadow-xl text-lg font-semibold text-center transition-opacity duration-500"></div>
+
 </html>
