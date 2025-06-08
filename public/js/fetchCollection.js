@@ -1,43 +1,61 @@
 let deck = Array(12).fill(null);
 
+
+
 async function fetchCollection(targetContainerId = 'card-collection') {
-  const res = await fetch('/collection', { credentials: 'include' });
-  const data = await res.json();
-  const cards = data.cards;
+    const res = await fetch('/collection', { credentials: 'include' });
+    const data = await res.json();
+    const cards = data.cards;
 
-  const filteredCards = cards.filter(card => card.card_count > 0);
+    // Filter out cards with 0 count
+    const filteredCards = cards.filter(card => card.card_count > 0);
 
-  const collectionDiv = document.getElementById(targetContainerId);
-  if (!collectionDiv) {
-    console.error(`Container with ID "${targetContainerId}" not found.`);
-    return;
-  }
+    const collectionDiv = document.getElementById(targetContainerId);
+    if (!collectionDiv) {
+      console.error(`Container with ID "${targetContainerId}" not found.`);
+      return;
+    }
+    if (res.status === 200) {
+      collectionDiv.innerHTML = ''; // Clear previous content
 
-  if (res.status === 200) {
-    collectionDiv.innerHTML = '';
-
-    if (targetContainerId === 'card-collection') {
+      if (targetContainerId === 'card-collection') {
       filteredCards.forEach(card => {
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card-container cursor-pointer';
         cardDiv.dataset.cardId = card.card_id;
         cardDiv.innerHTML = `
-          <div class="card-image relative">
-            <div class="absolute top-0 right-0 bg-yellow-500 text-white text-xs font-bold rounded-bl px-1">${card.card_count}</div>
+          <div class="card-image">
+            <div class="card-count">${card.card_count}</div>
             <img src="${card.card_image}" alt="${card.card_name}" class="w-full">
           </div>
         `;
-        cardDiv.ondblclick = () => addToDeck(card);
+        cardDiv.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          addToDeck(card);
+        });
+
         collectionDiv.appendChild(cardDiv);
       });
 
-      renderDeckSlots(); // initializează deck-ul gol
+      renderDeckSlots();
+      initializeCardClickEvents(filteredCards);
     }
-  } else {
-    collectionDiv.innerHTML = `<p class="text-red-500">${data.error}</p>`;
-  }
+      else if (targetContainerId === 'home-collection') {
+        filteredCards.slice(0,4).forEach(card => {
+          const cardDiv = document.createElement('div');
+          cardDiv.className = 'bg-gray-100 p-4 rounded-lg shadow';
+          cardDiv.innerHTML = `
+            <div class="card-image-in-home">
+              <img src="${card.card_image}" alt="${card.card_name}" class="w-full">
+            </div>
+          `;
+          collectionDiv.appendChild(cardDiv);
+        });
+      } 
+    } else {
+      collectionDiv.innerHTML = `<p class="text-red-500">${data.error}</p>`;
+    }
 }
-
 function renderDeckSlots() {
 
   const deckContainer = document.getElementById('deck-container');
@@ -76,6 +94,15 @@ window.addEventListener("load", async () => {
 
 
 function addToDeck(card) {
+  // Count how many times this card is already in the deck
+  const countInDeck = deck.filter(c => c && c.card_id === card.card_id).length;
+  if (countInDeck >= card.card_count) {
+    showBubbleMessage(
+      `You don't have enough of ${card.card_name} (Level ${card.level})!`,
+      true
+    );
+    return;
+  }
   const emptyIndex = deck.findIndex(c => c === null);
   if (emptyIndex === -1) {
     showBubbleMessage("Your deck is full!", true);

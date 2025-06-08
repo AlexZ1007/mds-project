@@ -417,19 +417,6 @@ app.post('/shop/buy', authMiddleware, (req, res) => {
 });
  
 // GET: Deckul actual al utilizatorului
-app.get('/deck', authMiddleware, async (req, res) => {
-    const userId = req.user.userId;
-
-    try {
-        const userDeck = await collection.getUserDeck(userId);
-        res.status(200).json({ deck: userDeck });
-    } catch (error) {
-        console.error("Error fetching deck:", error);
-        res.status(500).json({ error: 'Failed to fetch deck.' });
-    }
-});
-
-// POST: Salvare deck nou
 app.post('/deck', authMiddleware, async (req, res) => {
     const userId = req.user.userId;
     const { deck } = req.body;
@@ -438,12 +425,53 @@ app.post('/deck', authMiddleware, async (req, res) => {
         return res.status(400).json({ error: 'Invalid deck format' });
     }
 
+    // Fetch user's card counts
+    const userCards = await new Promise((resolve, reject) => {
+        connection.query(
+            'SELECT card_id, card_count FROM User_Cards WHERE user_id = ?',
+            [userId],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
+    });
+    const cardCountMap = {};
+    userCards.forEach(row => cardCountMap[row.card_id] = row.card_count);
+
+    // Count cards in the deck
+    const deckCardCounts = {};
+    deck.forEach(card => {
+        if (card && card.card_id) {
+            deckCardCounts[card.card_id] = (deckCardCounts[card.card_id] || 0) + 1;
+        }
+    });
+
+    // Validate
+    for (const [cardId, count] of Object.entries(deckCardCounts)) {
+        if (!cardCountMap[cardId] || count > cardCountMap[cardId]) {
+            return res.status(400).json({ error: `You do not own enough copies of card ID ${cardId}` });
+        }
+    }
+
     try {
         await collection.saveUserDeck(userId, deck);
         res.status(200).json({ message: 'Deck saved successfully' });
     } catch (error) {
         console.error("Error saving deck:", error);
         res.status(500).json({ error: 'Failed to save deck.' });
+    }
+});
+
+// POST: Salvare deck nou
+app.get('/deck', authMiddleware, async (req, res) => {
+    const userId = req.user.userId;
+    try {
+        const deck = await collection.getUserDeck(userId);
+        res.status(200).json({ deck });
+    } catch (error) {
+        console.error("Error fetching deck:", error);
+        res.status(500).json({ error: 'Failed to fetch deck.' });
     }
 });
 

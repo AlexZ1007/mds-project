@@ -35,21 +35,6 @@ button {
     
 }
 
-.deck-slot,
-.card-container {
-    perspective: 1000px; /* Perspective for 3D effect */
-    position: relative;
-    padding: 0.1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-    margin-left: 0;
-    margin-right: auto;
-}
 
 
 .card-image {
@@ -81,3 +66,82 @@ button {
     border-radius: 0.5rem;
 }
 
+/* --- Deck Styling Improvements --- */
+
+#deck-container {
+    background: linear-gradient(135deg, #ede9fe 0%, #f3f4f6 100%);
+    border: 2px solid #a78bfa;
+    border-radius: 1rem;
+    box-shadow: 0 6px 24px 0 rgba(80, 0, 120, 0.10);
+    padding: 2rem 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    min-height: 260px;
+    transition: box-shadow 0.2s;
+}
+
+#deck-container .deck-slot,
+#deck-container .border {
+    min-width: 150px;
+    min-height: 220px;
+    width: 150px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f3e8ff 60%, #e0e7ff 100%);
+    border: 2px dashed #c4b5fd;
+    border-radius: 0.75rem;
+    transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+}
+
+#deck-container .deck-slot:hover,
+#deck-container .border:hover {
+    border-color: #a78bfa;
+    background: linear-gradient(135deg, #ede9fe 80%, #c7d2fe 100%);
+    box-shadow: 0 4px 16px 0 rgba(168, 139, 250, 0.15);
+}
+
+#deck-container .deck-slot img,
+#deck-container .border img {
+    width: 90%;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px 0 rgba(80, 0, 120, 0.10);
+    transition: transform 0.15s;
+}
+
+#deck-container .deck-slot .text-gray-400,
+#deck-container .border .text-gray-400 {
+    font-size: 1rem;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
+    color: #a78bfa;
+    opacity: 0.8;
+    padding-top: 2.5rem;
+}
+
+#deck-container .deck-slot.selected,
+#deck-container .border.selected {
+    border: 2px solid #fbbf24;
+    background: #fef3c7;
+    box-shadow: 0 0 0 4px #fde68a55;
+}
+
+@media (max-width: 900px) {
+    #deck-container {
+        grid-template-columns: repeat(3, 1fr) !important;
+        padding: 1rem 0.5rem;
+    }
+    #deck-container .deck-slot,
+    #deck-container .border {
+        min-width: 110px;
+        min-height: 160px;
+        width: 110px;
+        height: 160px;
+    }
+}
