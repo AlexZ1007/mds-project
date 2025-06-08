@@ -6,6 +6,8 @@ const lobbyId = urlParams.get('lobby_id');
 socket.emit('join_lobby', { lobbyId });
 
 let isMyTurn = false;
+let gameEnded = false;
+
 
 const endRoundBtn = document.getElementById('endRoundBtn');
 const drawCardBtn = document.getElementById('drawCardBtn');

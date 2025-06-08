@@ -65,8 +65,95 @@ function registerGameEvents(io, socket, match_queue, lobbies) {
     if (!otherSocket) return;
 
     lobby.currentTurn = otherSocket.id;
-
+    lobby.totalTurns++;
     socket.emit("opponent_turn");      // current player sees it's opponent's turn now
+
+
+
+    let [p1Socket, p2Socket] = lobby.playerSockets;
+    let player1 = lobby.players[p1Socket.id];
+    let player2 = lobby.players[p2Socket.id];
+
+
+    if (lobby.totalTurns % 2 === 0) {
+      lobby.getBattles().forEach(battle => {
+
+        if (battle.type == 'battle') {
+          p1Socket.emit('battle', {
+            card1: battle.card1,
+            card2: battle.card2,
+            column: battle.column
+          });
+          p2Socket.emit('battle', {
+            card1: battle.card1,
+            card2: battle.card2,
+            column: battle.column
+          });
+        } else {
+          // Determine attacker and victim based on which card is present
+          const attackerCard = battle.card1 || battle.card2;
+          const victimSocket = lobby.playerSockets.find(s => s.id !== attackerCard.ownerId);
+          const attackerSocket = lobby.playerSockets.find(s => s.id === attackerCard.ownerId);
+
+          // Emit correct visual effect to victim and attacker
+          victimSocket.emit('player_damage', {
+            card: attackerCard,
+            column: battle.column
+          });
+
+          attackerSocket.emit('opponent_damage', {
+            card: attackerCard,
+            column: battle.column
+          });
+
+          if(lobby.players[victimSocket.id].hp <= 0) {
+            p1Socket.emit('player_data', lobby.getDataAboutPlayers(player1.id));
+            p2Socket.emit('player_data', lobby.getDataAboutPlayers(player2.id));
+
+            // If the victim's HP is 0, end the game
+            attackerSocket.emit('game_over', { status: 'win', coins:120, trophies: 30 });
+            victimSocket.emit('game_over', { status: 'lose',coins:40, trophies: -30 });
+            return;
+          }
+
+        }
+
+        p1Socket.emit('player_data', lobby.getDataAboutPlayers(player1.id));
+        p2Socket.emit('player_data', lobby.getDataAboutPlayers(player2.id));
+
+
+
+        p2Socket.emit('update_map', {
+          map: lobby.map
+        });
+        p1Socket.emit('update_map', {
+          map: lobby.map
+        });
+      });    
+
+      lobby.moveCardsForward();
+
+      p2Socket.emit('update_map', {
+        map: lobby.map
+      });
+      p1Socket.emit('update_map', {
+        map: lobby.map
+      });
+
+      // Add 5 mana and a free card draw for both players every 2 turns
+      player1.mana += 6; 
+      player2.mana += 6; 
+
+      player1.drawCard();
+      player2.drawCard();
+
+      p1Socket.emit('player_data', lobby.getDataAboutPlayers(player1.id));
+      p2Socket.emit('player_data', lobby.getDataAboutPlayers(player2.id));
+
+    }
+
+
+
     otherSocket.emit("your_turn");     // opponent is now the current player
   });
 
