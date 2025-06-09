@@ -1,4 +1,3 @@
-const User = require('../server/user');
 const bcrypt = require('bcrypt');
 const connection = require('../server/database');
 

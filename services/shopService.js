@@ -1,5 +1,4 @@
 const connection = require('../server/database');
-const User = require('../server/user');
 
 
 class ShopService {
@@ -78,7 +77,6 @@ class ShopService {
 
 
             } else {
-                console.log(card.card_id)
                 await new Promise((resolve, reject) => {
                     connection.query(
                         'INSERT INTO User_Cards (user_id, card_id, card_count) VALUES (?, ?, 1)',

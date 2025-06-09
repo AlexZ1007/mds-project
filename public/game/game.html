@@ -40,6 +40,15 @@
       <button id="drawCardBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md w-full transition">
         Draw Card
       </button>
+
+      <!-- Error Modal (Inline) -->
+      <div id="errorModal" class="bg-red-800 text-white rounded-md shadow-md p-4 w-full text-center hidden transition-all duration-300">
+        <p id="errorMessage" class="text-sm"></p>
+        <button onclick="closeErrorModal()" class="mt-2 bg-white text-red-700 font-semibold py-1 px-3 rounded hover:bg-gray-200">
+          Close
+        </button>
+      </div>
+
     </div>
 
     <!-- Canvas Area -->
@@ -74,6 +83,8 @@
       </div>
     </div>
   </div>
+
+
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/game.js"></script>

@@ -32,8 +32,8 @@
       <!-- Rank Box -->
       <div class="text-center mb-4">
         <h3 class="text-2xl font-semibold">Your Rank</h3>
-        <p class="text-gray-200 text-lg">Silver II</p>
-        <p class="text-sm text-gray-300 mt-1">Wins: 24 | Losses: 18</p>
+        <p class="text-gray-200 text-lg" id="overview-division">Unranked</p>
+        <p class="text-sm text-gray-300 mt-1">Wins: <span id="overview-wins">0</span> | Losses: <span id="overview-losses">0</span></p>
       </div>
 
       
@@ -117,7 +117,13 @@
         const user = await res.json();
         const wins = user.matches_won || 0;
         const played = user.matches_played || 0;
+        const division = user.division_name || 'Unranked';
         const losses = Math.max(played - wins, 0);
+
+
+        document.getElementById('overview-division').textContent = division;
+        document.getElementById('overview-wins').textContent = wins;
+        document.getElementById('overview-losses').textContent = losses;
 
         document.getElementById('pie-wins').textContent = wins;
         document.getElementById('pie-losses').textContent = losses;

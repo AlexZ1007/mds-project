@@ -1,12 +1,53 @@
 let cells = [];
 let cardImageMap = {};
 const imagePaths = [
+  '/img/astral_heart_L1.jpg',
+  '/img/astral_heart_L2.jpg',
+  '/img/astral_heart_L3.jpg',
+  '/img/astronaut_L1.jpg',
+  '/img/astronaut_L2.jpg',
+  '/img/astronaut_L3.jpg',
   '/img/broom_L1.jpg',
-  '/img/gloomroot_L2.jpg',
-  '/img/voidgate_L3.jpg',
+  '/img/broom_L2.jpg',
+  '/img/broom_L3.jpg',
+  '/img/dragon_L1.jpg',
+  '/img/dragon_L2.jpg',
+  '/img/dragon_L3.jpg',
+  '/img/enchanted_book_L1.jpg',
   '/img/enchanted_book_L2.jpg',
+  '/img/enchanted_book_L3.jpg',
+  '/img/fungal_seer_L1.jpg',
+  '/img/fungal_seer_L2.jpg',
+  '/img/fungal_seer_L3.jpg',
+  '/img/gloomroot_L1.jpg',
+  '/img/gloomroot_L2.jpg',
+  '/img/gloomroot_L3.jpg',
+  '/img/gnomewalker_L1.jpg',
+  '/img/gnomewalker_L2.jpg',
+  '/img/gnomewalker_L3.jpg',
+  '/img/hexpaw_L1.jpg',
   '/img/hexpaw_L2.jpg',
+  '/img/hexpaw_L3.jpg',
+  '/img/nullcore_L1.jpg',
+  '/img/nullcore_L2.jpg',
+  '/img/nullcore_L3.jpg',
+  '/img/shadowcloak_L1.jpg',
+  '/img/shadowcloak_L2.jpg',
+  '/img/shadowcloak_L3.jpg',
+  '/img/spelltome_L1.jpg',
+  '/img/spelltome_L2.jpg',
+  '/img/spelltome_L3.jpg',
+  '/img/stoneclaw_L1.jpg',
+  '/img/stoneclaw_L2.jpg',
+  '/img/stoneclaw_L3.jpg',
+  '/img/venomenal_snapper_L1.jpg',
+  '/img/venomenal_snapper_L2.jpg',
+  '/img/venomenal_snapper_L3.jpg',
+  '/img/voidgate_L1.jpg',
+  '/img/voidgate_L2.jpg',
+  '/img/voidgate_L3.jpg',
 ];
+
 
 const rows = 4;
 const cols = 4;
@@ -246,3 +287,18 @@ socket.on('game_over', (payload) => {
   selectedCardId = null;
   showGameOverModal(payload);
 });
+
+socket.on('error', (error) => {
+  showErrorModal(error.message || "An unexpected error occurred.");
+});
+
+function showErrorModal(message) {
+  const modal = document.getElementById('errorModal');
+  const messageEl = document.getElementById('errorMessage');
+  messageEl.textContent = message;
+  modal.classList.remove('hidden');
+}
+
+function closeErrorModal() {
+  document.getElementById('errorModal').classList.add('hidden');
+}
