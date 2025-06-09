@@ -1,5 +1,4 @@
 const connection = require('../server/database');
-const User = require('../server/user');
 
 class CollectionService{
     constructor(){}
@@ -57,7 +56,7 @@ class CollectionService{
     async getUserDeck(userId) {
         return new Promise((resolve, reject) => {
             connection.query(
-                `SELECT d.position, c.card_id, c.card_name, c.card_image
+                `SELECT d.position, c.card_id, c.card_name, c.card_image, c.HP_points as hp, c.damage as attack, c.mana_points as mana_cost
                  FROM Deck d
                  JOIN Card c ON d.card_id = c.card_id
                  WHERE d.user_id = ?
@@ -69,6 +68,7 @@ class CollectionService{
                     results.forEach(row => {
                         deck[row.position] = row;
                     });
+                    
                     resolve(deck);
                 }
             );

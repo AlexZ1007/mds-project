@@ -1,7 +1,12 @@
 const { v4: uuidv4 } = require("uuid");
 const { Lobby } = require("./server/game/lobby");
 const { Player } = require("./server/game/player");
+const { Card } = require("./server/game/card");
+const CollectionService = require("./services/collectionService");
+const userService = require("./services/userService");
 
+const collectionService = new CollectionService();
+const user_service = new userService();
 
 function registerGameEvents(io, socket, match_queue, lobbies) {
   socket.on("message", (data) => {
@@ -35,15 +40,35 @@ function registerGameEvents(io, socket, match_queue, lobbies) {
     }
   });
 
-  socket.on("join_lobby", ({ lobbyId }) => {
-    const lobby = lobbies[lobbyId];
-    if (!lobby) return;
+ socket.on("join_lobby", async ({ lobbyId }) => {
+  const lobby = lobbies[lobbyId];
+  if (!lobby) return;
 
-    socket.join(lobbyId);
-    lobby.playerSockets.push(socket);
+  socket.join(lobbyId);
+  lobby.playerSockets.push(socket);
 
-    lobby.players[socket.id] = new Player(socket.id);
+  try {
+    const deckData = await collectionService.getUserDeck(socket.user.userId);
 
+    const playerDeck = deckData
+      .map(cardData => {
+        if (!cardData) return null;
+        return new Card(
+          cardData.card_id,
+          cardData.card_image,
+          cardData.hp,
+          cardData.attack,
+          cardData.mana_cost,
+          socket.id 
+        );
+      })
+      .filter(card => card !== null);
+
+
+    // Attach player to lobby
+    lobby.players[socket.id] = new Player(socket.id, playerDeck);
+
+    // Check if both players have joined
     if (lobby.playerSockets.length === 2) {
       const [p1, p2] = lobby.playerSockets;
       lobby.currentTurn = p1.id;
@@ -52,10 +77,16 @@ function registerGameEvents(io, socket, match_queue, lobbies) {
       p1.emit("your_turn");
       p2.emit("opponent_turn");
 
-      p1.emit('player_data', lobby.getDataAboutPlayers(p1.id));
-      p2.emit('player_data', lobby.getDataAboutPlayers(p2.id));
+      p1.emit("player_data", lobby.getDataAboutPlayers(p1.id));
+      p2.emit("player_data", lobby.getDataAboutPlayers(p2.id));
     }
-  });
+
+  } catch (err) {
+    console.error("Failed to load player deck for lobby:", err);
+    socket.emit("error", { message: "Failed to load deck. Please try again later." });
+  }
+});
+
 
   socket.on("end_turn", ({ lobbyId }) => {
     const lobby = lobbies[lobbyId];
@@ -76,82 +107,61 @@ function registerGameEvents(io, socket, match_queue, lobbies) {
 
 
     if (lobby.totalTurns % 2 === 0) {
-      lobby.getBattles().forEach(battle => {
+      const battles = lobby.getBattles();
 
-        if (battle.type == 'battle') {
-          p1Socket.emit('battle', {
-            card1: battle.card1,
-            card2: battle.card2,
-            column: battle.column
-          });
-          p2Socket.emit('battle', {
-            card1: battle.card1,
-            card2: battle.card2,
-            column: battle.column
-          });
+      for (const battle of battles) {
+        if (battle.type === 'battle') {
+          p1Socket.emit('battle', { card1: battle.card1, card2: battle.card2, column: battle.column });
+          p2Socket.emit('battle', { card1: battle.card1, card2: battle.card2, column: battle.column });
         } else {
-          // Determine attacker and victim based on which card is present
           const attackerCard = battle.card1 || battle.card2;
           const victimSocket = lobby.playerSockets.find(s => s.id !== attackerCard.ownerId);
           const attackerSocket = lobby.playerSockets.find(s => s.id === attackerCard.ownerId);
 
-          // Emit correct visual effect to victim and attacker
-          victimSocket.emit('player_damage', {
-            card: attackerCard,
-            column: battle.column
-          });
+          victimSocket.emit('player_damage', { card: attackerCard, column: battle.column });
+          attackerSocket.emit('opponent_damage', { card: attackerCard, column: battle.column });
 
-          attackerSocket.emit('opponent_damage', {
-            card: attackerCard,
-            column: battle.column
-          });
-
-          if(lobby.players[victimSocket.id].hp <= 0) {
+          const victim = lobby.players[victimSocket.id];
+          if (victim.hp <= 0) {
             p1Socket.emit('player_data', lobby.getDataAboutPlayers(player1.id));
             p2Socket.emit('player_data', lobby.getDataAboutPlayers(player2.id));
 
-            // If the victim's HP is 0, end the game
-            attackerSocket.emit('game_over', { status: 'win', coins:120, trophies: 30 });
-            victimSocket.emit('game_over', { status: 'lose',coins:40, trophies: -30 });
+            const winnerReward =  { status: 'win', coins:120, trophies: 30 };
+            const loserReward = { status: 'lose', coins: 40, trophies: -30 };
+
+            attackerSocket.emit('game_over', winnerReward);
+            victimSocket.emit('game_over', loserReward);
+
+            user_service.updateUserAfterGame(attackerSocket.user.userId, winnerReward);
+            user_service.updateUserAfterGame(victimSocket.user.userId, loserReward);
+
             return;
           }
-
         }
 
+        // continue normal loop stuff
         p1Socket.emit('player_data', lobby.getDataAboutPlayers(player1.id));
         p2Socket.emit('player_data', lobby.getDataAboutPlayers(player2.id));
 
+        p1Socket.emit('update_map', { map: lobby.map });
+        p2Socket.emit('update_map', { map: lobby.map });
+      }
 
-
-        p2Socket.emit('update_map', {
-          map: lobby.map
-        });
-        p1Socket.emit('update_map', {
-          map: lobby.map
-        });
-      });    
-
+      // post-battle phase
       lobby.moveCardsForward();
 
-      p2Socket.emit('update_map', {
-        map: lobby.map
-      });
-      p1Socket.emit('update_map', {
-        map: lobby.map
-      });
+      p1Socket.emit('update_map', { map: lobby.map });
+      p2Socket.emit('update_map', { map: lobby.map });
 
-      // Add 5 mana and a free card draw for both players every 2 turns
-      player1.mana += 6; 
-      player2.mana += 6; 
+      player1.mana += 6;
+      player2.mana += 6;
 
       player1.drawCard();
       player2.drawCard();
 
       p1Socket.emit('player_data', lobby.getDataAboutPlayers(player1.id));
       p2Socket.emit('player_data', lobby.getDataAboutPlayers(player2.id));
-
     }
-
 
 
     otherSocket.emit("your_turn");     // opponent is now the current player
@@ -160,15 +170,31 @@ function registerGameEvents(io, socket, match_queue, lobbies) {
 
   socket.on("place_card", ({ lobbyId, row, col, selectedCardId }) => {
     const lobby = lobbies[lobbyId];
+
+    // get the index of the socket in the lobby's playerSockets
+    const playerIndex = lobby.playerSockets.findIndex(s => s.id === socket.id);
+    if ((playerIndex === 0 && (row == 2 || row == 3)) || playerIndex === 1 && (row == 0 || row == 1)) {
+      let message
+      if(playerIndex == 0)
+        message = 'You cannot place a card in this row. You can only place rows in the first 2 rows(up side of the board).';
+      else
+        message = 'You cannot place a card in this row. You can only place rows in the last 2 rows(down side of the board).';
+
+      socket.emit('error', { message: message});
+      return;
+
+    }
+
+
     console.log(`Placing card ${selectedCardId} at row ${row}, col ${col}`);
 
     if (!lobby || lobby.currentTurn !== socket.id) return;
 
-    const player = lobby.players[socket.id];
 
     let valid = lobby.placeCard(socket.id, selectedCardId, row, col);
     
     if (!valid) {
+      socket.emit('error', { message: "Not enough mana or invalid placement." });
       return;
     }
 
@@ -208,5 +234,8 @@ function registerGameEvents(io, socket, match_queue, lobbies) {
 
 
 }
+
+
+
 
 module.exports = { registerGameEvents };
