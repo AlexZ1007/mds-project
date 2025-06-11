@@ -3,7 +3,7 @@ class Player {
   constructor(id, deck = []) {
     this.id = id;
     this.mana = 10;
-    this.hp = 1; 
+    this.hp = 20; 
     // Randomise the deck order
     deck.sort(() => Math.random() - 0.5);
     this.deck = deck; 
