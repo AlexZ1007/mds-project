@@ -12,7 +12,7 @@ from joblib import dump
 load_dotenv()
 
 # file to store data so that i do not run the select every time
-CACHE_FILE = "shop_data.csv"
+CACHE_FILE = "services/ml/shop_data.csv"
 
 connection = pymysql.connect(
     host = os.environ['DB_HOST'],
@@ -75,10 +75,7 @@ else:
 df['date_listed'] = pd.to_datetime(df['date_listed'])
 df['date_sold'] = pd.to_datetime(df['date_sold'], errors = 'coerce')
 
-# Replace placeholder with NaT
-# df.loc[df['date_sold'] == pd.Timestamp('1000-01-01 00:00:00'), 'date_sold'] = pd.NaT
-
-# Current timestamp
+# get current timestamp
 now = pd.Timestamp(datetime.now())
 
 # Compute time_on_market
@@ -91,6 +88,7 @@ df['time_on_market'] = np.where(
 # Drop rows with missing values
 df = df.dropna()
 
+# create feature and prediction arrays 
 features = ['level', 'damage', 'HP_points', 'mana_points', 'sold', 'time_on_market']  
 X = df[features]
 y = df['price_listed']
@@ -101,19 +99,7 @@ model.fit(X_train, y_train)
 
 print("Test R^2 score:", model.score(X_test, y_test))
 
-# new_card = pd.DataFrame([{
-#     'level': 2,
-#     'damage': 3,
-#     'HP_points': 5,
-#     'mana_points': 4,
-#     'sold': 1,
-#     'time_on_market': 2  
-#     # 'is_friends': 1,   # if available
-# }])
-# predicted_price = model.predict(new_card)
-# pret = round(predicted_price[0])
-# print("Predicted price:", pret)
-
 # print(df.tail())
 
-dump(model, "price_model.joblib")
+# save model 
+dump(model, "services/ml/price_model.joblib")
