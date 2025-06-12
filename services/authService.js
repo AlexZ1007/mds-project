@@ -115,6 +115,38 @@ class authService {
       );
     });
   }
+
+
+  async getUserDataIfAllowed(requestingUserId, profileUserId) {
+      if (requestingUserId == profileUserId) {
+          return await this.getUserData(profileUserId);
+      }
+      // Check if they are friends
+      const checkFriendQuery = `
+          SELECT 1 FROM Friends_Requests 
+          WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?))
+          AND status = 1
+          LIMIT 1
+      `;
+
+      const results = await new Promise((resolve, reject) => {
+        connection.query(
+            checkFriendQuery,
+            [requestingUserId, profileUserId, profileUserId, requestingUserId],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
+    });
+
+    if (!results.length) {
+        throw new Error('Access denied');
+    }
+
+    // They are friends, allow access
+    return await this.getUserData(profileUserId);
+  }
   
 
 }

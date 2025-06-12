@@ -1,5 +1,14 @@
 const connection = require('../server/database');
 
+function queryAsync(sql, params) {
+    return new Promise((resolve, reject) => {
+        connection.query(sql, params, (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
+}
+
 class CollectionService{
     constructor(){}
 
@@ -74,7 +83,34 @@ class CollectionService{
             );
         });
     }
-    
+
+    async validateAndSaveDeck(userId, deck) {
+        if (!Array.isArray(deck)) throw new Error('Invalid deck format');
+        // Fetch user's card counts
+        const userCards = await queryAsync(
+            'SELECT card_id, card_count FROM User_Cards WHERE user_id = ?',
+            [userId]
+        );
+        const cardCountMap = {};
+        userCards.forEach(row => cardCountMap[row.card_id] = row.card_count);
+
+        // Count cards in the deck
+        const deckCardCounts = {};
+        deck.forEach(card => {
+            if (card && card.card_id) {
+                deckCardCounts[card.card_id] = (deckCardCounts[card.card_id] || 0) + 1;
+            }
+        });
+
+        // Validate
+        for (const [cardId, count] of Object.entries(deckCardCounts)) {
+            if (!cardCountMap[cardId] || count > cardCountMap[cardId]) {
+                throw new Error(`You do not own enough copies of card ID ${cardId}`);
+            }
+        }
+        await this.saveUserDeck(userId, deck);
+    }
+
 }
 
 module.exports = CollectionService;
