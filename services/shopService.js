@@ -52,7 +52,6 @@ class ShopService {
             }
         }
         for (let card of result) {
-            console.log(card);
             let exists = await new Promise((resolve, reject) => {
                 connection.query(
                     'Select * from User_Cards where user_id = ? and card_id = ?',
