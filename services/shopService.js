@@ -192,7 +192,7 @@ class ShopService {
                 damage: card.damage,
                 HP_points: card.HP_points,
                 mana_points: card.mana_points,
-                sold: 1,
+                sold: 0,
                 time_on_market: 0
             });
             return { predicted_price: response.data.predicted_price };
