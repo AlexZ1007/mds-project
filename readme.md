@@ -10,6 +10,8 @@ Welcome to the world of **ARCANA**!
 
 ## General Presentation
 
+### [Demo on youtube](https://www.youtube.com/watch?v=gWz60hM_llE)
+
 ![Home Page](./readme_images/home_page.png)
 Home Page
 
@@ -28,6 +30,16 @@ Battle Arena
 
 ![State diagram](./readme_images/gameStateUMLDiagram.png)
 Gameplay state diagram
+
+![Use case diagram](./readme_images/uml_useCase.jpg)
+
+Use case diagram
+
+
+
+### Databsase diagram
+![Database diagram](./readme_images/database_diagram.jpg)
+Database Diagram
 
 
 ### Team Work
@@ -50,13 +62,16 @@ Code Review
 Bug Fixes
 
 
+### Design patterns
+## Design Patterns
+
+- In `./server/database.js`, we used the **Singleton** pattern for the database connection.
+- In `./services/shopObserver.js`, we used the **Observer** pattern to update the model that makes price predictions when new cards are listed.
+
+## Local set-up
 
 
-#### Local set-up
-
-
-
-#### Python Environment Setup
+### Python Environment Setup
 
 To set up the Python environment and install all dependencies, follow these steps:
 
@@ -71,7 +86,7 @@ To set up the Python environment and install all dependencies, follow these step
     ``pip install -r services/ml/requirements.txt``
 
 
-#### NPM Setup
+### NPM Setup
 
 
 1. **Install node packages**
