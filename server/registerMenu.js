@@ -1,5 +1,6 @@
 
 function RegMenu(app) {
+    // ====== Imports and Service Instantiations ======
     const cors = require('cors');
     const express = require("express");
     const jwt = require('jsonwebtoken');
@@ -20,11 +21,14 @@ function RegMenu(app) {
     const friends = new FriendService();
     const card = new CardService();
 
+    // ====== Middleware ======
     app.use(cors());
     app.use(express.json());
 
+    // ====== Auth & User Routes ======
+
+    // Register a new user
     app.post('/register', async (req, res) => {
-        // TODO: check if user is already logged in
         const { username, password, email } = req.body;
         if (!username || !password || !email) {
             return res.status(400).json({ error: 'All fields are required.' });
@@ -46,6 +50,7 @@ function RegMenu(app) {
     });
 
 
+    // Login
     app.post('/login', async (req, res) => {
         const { username, password } = req.body;
         try {
@@ -64,23 +69,18 @@ function RegMenu(app) {
         }
     });
 
-
-    app.post('/pack', authMiddleware, async (req, res) => {
-        const { pack_info } = req.body;
-        try {
-            const pack = await shop.openPack(pack_info, req.user.userId);
-            res.status(202).json({ message: 'Pack opened successfully', pack });
-        } catch (e) {
-            res.status(402).json({ error: e.message });
-        }
+    // Logout
+    app.post('/logout', authMiddleware, (req, res) => {
+        res.clearCookie('token');
+        res.status(200).json({ message: 'Logout successful' });
     });
 
-   
+    // Get current user ID
     app.get('/me', authMiddleware, (req, res) => {
         res.json({ userId: req.user.userId });
     });
 
-
+    // Check if user is logged in
     app.get('/check-loggedin', authMiddleware, async (req, res) => {
         let temp = req.user.userId;
         if (temp === undefined) {
@@ -91,38 +91,7 @@ function RegMenu(app) {
         }
     });
 
-
-    app.get('/collection', authMiddleware, async (req, res) => {
-        const userId = req.query.userid || req.user.userId;
-        try {
-            const cards = await collection.getUserCards(userId);
-            res.status(200).json({ cards });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Failed to fetch card collection.' });
-        }
-    });
-
-
-    app.post('/merge-card', authMiddleware, async (req, res) => {
-        const { card_id, level } = req.body;
-        const userId = req.user.userId;
-
-        try{
-            const result = await card.mergeCard(userId, card_id, level);
-            res.status(200).json(result);
-        } catch(err){
-            res.status(400).json({error: err.message});
-        }
-    });
-
-
-    app.post('/logout', authMiddleware, (req, res) => {
-        res.clearCookie('token');
-        res.status(200).json({ message: 'Logout successful' });
-    });
-
-
+    // Get user data (with access control)
     app.get('/user-data', authMiddleware, async (req, res) => {
         const userId = req.user.userId;
         const profileUserId = req.query.profile_user_id || userId;
@@ -135,8 +104,39 @@ function RegMenu(app) {
             res.status(status).json({ error: error.message });
         }
     });
-    
 
+    // ====== Collection & Card Routes ======
+
+    // Get user's card collection
+    app.get('/collection', authMiddleware, async (req, res) => {
+        const userId = req.query.userid || req.user.userId;
+        try {
+            const cards = await collection.getUserCards(userId);
+            res.status(200).json({ cards });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Failed to fetch card collection.' });
+        }
+    });
+
+
+    // Merge cards
+    app.post('/merge-card', authMiddleware, async (req, res) => {
+        const { card_id, level } = req.body;
+        const userId = req.user.userId;
+
+        try{
+            const result = await card.mergeCard(userId, card_id, level);
+            res.status(200).json(result);
+        } catch(err){
+            res.status(400).json({error: err.message});
+        }
+    });
+
+    
+    // ====== Friends Routes ======
+
+    // Search for friends by nickname
     app.get('/friends/search', authMiddleware, async (req, res) => {
         const { nickname } = req.query;
         const userId = req.user.userId;
@@ -151,6 +151,7 @@ function RegMenu(app) {
     });
 
 
+    // Send a friend request
     app.post('/friends/request', authMiddleware, async (req, res) => {
         const { friendId } = req.body;
         try{
@@ -163,6 +164,7 @@ function RegMenu(app) {
     });
 
 
+    // Respond to a friend request
     app.post('/friends/respond', authMiddleware, async (req, res) => {
         const { requestId, status } = req.body;
         try {
@@ -175,6 +177,7 @@ function RegMenu(app) {
     });
 
 
+    // Get friends and pending requests
     app.get('/friends', authMiddleware, async (req, res) => {
         const userId = req.query.userid || req.user.userId;
         try {
@@ -186,7 +189,20 @@ function RegMenu(app) {
         }
     });
 
+    // ====== Shop Routes ======
 
+    // Open a pack
+    app.post('/pack', authMiddleware, async (req, res) => {
+        const { pack_info } = req.body;
+        try {
+            const pack = await shop.openPack(pack_info, req.user.userId);
+            res.status(202).json({ message: 'Pack opened successfully', pack });
+        } catch (e) {
+            res.status(402).json({ error: e.message });
+        }
+    });
+
+    // Get available cards in shop
     app.get('/shop/cards', authMiddleware, async (req, res) => {
         const userId = req.user.userId;
         try {
@@ -197,7 +213,7 @@ function RegMenu(app) {
         }
     });
 
-    
+    // List a card for sale
     app.post('/shop/list', authMiddleware, async (req, res) => {
         const userId = req.user.userId;
         const { card_id, price } = req.body;
@@ -209,7 +225,7 @@ function RegMenu(app) {
         }
     });
 
-    
+    // Buy a card from the shop
     app.post('/shop/buy', authMiddleware, async (req, res) => {
         const buyerId = req.user.userId;
         const { shop_ID } = req.body;
@@ -222,7 +238,7 @@ function RegMenu(app) {
         }
     });
 
-
+    // Predict price for a card
     app.post('/predict-price', authMiddleware, async (req, res) => {
         const { card_id } = req.body;
         try {
@@ -234,6 +250,9 @@ function RegMenu(app) {
     });
     
  
+    // ====== Deck Routes ======
+
+    // Save user's deck
     app.post('/deck', authMiddleware, async (req, res) => {
         const userId = req.user.userId;
         const { deck } = req.body;
@@ -245,7 +264,7 @@ function RegMenu(app) {
         }
     });
 
-    
+    // Get user's deck    
     app.get('/deck', authMiddleware, async (req, res) => {
         const userId = req.user.userId;
         try {
