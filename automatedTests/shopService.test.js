@@ -1,9 +1,24 @@
 const ShopService = require('../services/shopService');
-const connection = require('../server/database');
 
+// Mock the database connection
 jest.mock('../server/database', () => ({
     query: jest.fn(),
+    beginTransaction: jest.fn(),
+    commit: jest.fn(),
+    rollback: jest.fn()
 }));
+
+// Mock shopObserver
+jest.mock('../services/shopObserver', () => ({
+    notifyNewListing: jest.fn()
+}));
+
+// Mock axios
+jest.mock('axios', () => ({
+    post: jest.fn()
+}));
+
+const connection = require('../server/database');
 
 describe('ShopService.openPack', () => {
     let shopService;
@@ -19,8 +34,136 @@ describe('ShopService.openPack', () => {
         jest.clearAllMocks();
     });
 
+    it('throws error if user does not exist', async () => {
+        connection.query.mockImplementationOnce((query, params, callback) => {
+            callback(null, []); // No user found
+        });
+
+        await expect(shopService.openPack({ type: 1, cost: 10 }, userId))
+            .rejects
+            .toThrow('User not found!');
+        expect(connection.query).toHaveBeenCalledTimes(1);
+    });
+
+    it('throws error if card query fails', async () => {
+        let call = 0;
+        connection.query.mockImplementation((query, params, callback) => {
+            call++;
+            if (call === 1) {
+                callback(null, [{ balance: 100 }]);
+            } else if (call === 2) {
+                callback(null, { affectedRows: 1 });
+            } else if (call === 3) {
+                callback(new Error('Card query failed'), null);
+            }
+        });
+
+        await expect(shopService.openPack({ type: 1, cost: 10 }, userId))
+            .rejects
+            .toThrow('Card query failed');
+    });
+
+    it('throws error if updating user balance fails', async () => {
+        let call = 0;
+        connection.query.mockImplementation((query, params, callback) => {
+            call++;
+            if (call === 1) {
+                callback(null, [{ balance: 100 }]);
+            } else if (call === 2) {
+                callback(new Error('Balance update failed'), null);
+            }
+        });
+
+        await expect(shopService.openPack({ type: 1, cost: 10 }, userId))
+            .rejects
+            .toThrow('Balance update failed');
+    });
+
+    it('throws error if inserting user card fails', async () => {
+        let call = 0;
+        connection.query.mockImplementation((query, params, callback) => {
+            call++;
+            if (call === 1) {
+                callback(null, [{ balance: 100 }]);
+            } else if (call === 2) {
+                callback(null, { affectedRows: 1 });
+            } else if (call === 3) {
+                callback(null, cards);
+            } else if (call === 4) {
+                callback(null, []);
+            } else if (call === 5) {
+                callback(new Error('Insert card failed'), null);
+            }
+        });
+
+        await expect(shopService.openPack({ type: 1, cost: 10 }, userId))
+            .rejects
+            .toThrow('Insert card failed');
+    });
+
+    it('throws error if updating card count fails', async () => {
+        let call = 0;
+        connection.query.mockImplementation((query, params, callback) => {
+            call++;
+            if (call === 1) {
+                callback(null, [{ balance: 100 }]);
+            } else if (call === 2) {
+                callback(null, { affectedRows: 1 });
+            } else if (call === 3) {
+                callback(null, cards);
+            } else if (call === 4) {
+                callback(null, [{ user_id: userId, card_id: 10, card_count: 2 }]);
+            } else if (call === 5) {
+                callback(new Error('Update card count failed'), null);
+            }
+        });
+
+        await expect(shopService.openPack({ type: 1, cost: 10 }, userId))
+            .rejects
+            .toThrow('Update card count failed');
+    });
+
+    it('returns different cards for type 2 pack if random selection allows', async () => {
+        let call = 0;
+        connection.query.mockImplementation((query, params, callback) => {
+            call++;
+            if (call === 1) {
+                // User balance check
+                callback(null, [{ balance: 100 }]);
+            } else if (call === 2) {
+                // Balance update
+                callback(null, { affectedRows: 1 });
+            } else if (call === 3) {
+                // Get all cards
+                callback(null, cards);
+            } else if (call >= 4 && call <= 6) {
+                // Check existing cards (3 times) - none exist
+                callback(null, []);
+            } else if (call >= 7 && call <= 9) {
+                // Insert new cards (3 times)
+                callback(null, { insertId: call });
+            } else {
+                callback(new Error(`Unexpected call ${call}: ${query}`));
+            }
+        });
+
+        // Mock Math.random to return different values for each card
+        const mathRandom = jest.spyOn(Math, 'random');
+        let randomCallCount = 0;
+        mathRandom.mockImplementation(() => {
+            const values = [0, 0.33, 0.66]; // Different indexes for each card
+            return values[randomCallCount++ % 3];
+        });
+
+        const result = await shopService.openPack({ type: 2, cost: 20 }, userId);
+        
+        expect(result).toHaveLength(3);
+        expect(connection.query).toHaveBeenCalledTimes(9);
+
+        mathRandom.mockRestore();
+    });
+
     it('throws error if user has insufficient balance', async () => {
-        // Mock the balance check to return insufficient balance
         connection.query.mockImplementationOnce((query, params, callback) => {
             callback(null, [{ balance: 5 }]); // User has only 5 coins
         });
@@ -29,7 +172,6 @@ describe('ShopService.openPack', () => {
             .rejects
             .toThrow('Not enough coins!');
         
-        // Verify that only the balance check query was called
         expect(connection.query).toHaveBeenCalledTimes(1);
     });
 
@@ -37,27 +179,21 @@ describe('ShopService.openPack', () => {
         let callCount = 0;
         
         connection.query.mockImplementation((query, params, callback) => {
-            // Handle case where params is actually the callback (no params provided)
-            if (typeof params === 'function') {
-                callback = params;
-                params = undefined;
-            }
-            
             callCount++;
             
-            if (query.includes('Select balance from User')) {
+            if (query.includes('SELECT balance FROM User WHERE user_id = ?')) {
                 // 1. Get user balance
                 callback(null, [{ balance: 100 }]);
-            } else if (query.includes('UPDATE User SET balance')) {
+            } else if (query.includes('UPDATE User SET balance = balance - ? WHERE user_id = ?')) {
                 // 2. Update user balance (deduct cost)
                 callback(null, { affectedRows: 1 });
             } else if (query.includes('SELECT * FROM Card')) {
                 // 3. Get all cards for random selection
                 callback(null, cards);
-            } else if (query.includes('Select * from User_Cards where')) {
+            } else if (query.includes('SELECT * FROM User_Cards WHERE user_id = ? AND card_id = ?')) {
                 // 4. Check if user already has this card
                 callback(null, []); // User doesn't have the card yet
-            } else if (query.includes('INSERT INTO User_Cards')) {
+            } else if (query.includes('INSERT INTO User_Cards (user_id, card_id, card_count) VALUES (?, ?, 1)')) {
                 // 5. Insert new card into user's collection
                 callback(null, { insertId: 1 });
             } else {
@@ -67,13 +203,9 @@ describe('ShopService.openPack', () => {
 
         const result = await shopService.openPack({ type: 1, cost: 10 }, userId);
         
-        // Verify the result
         expect(result).toHaveLength(1);
         expect(result[0]).toHaveProperty('card_name');
         expect(['CardA', 'CardB', 'CardC']).toContain(result[0].card_name);
-        
-        // Verify expected number of database calls:
-        // 1 balance check + 1 balance update + 1 get cards + 1 check existing + 1 insert = 5 calls
         expect(connection.query).toHaveBeenCalledTimes(5);
     });
 
@@ -81,27 +213,21 @@ describe('ShopService.openPack', () => {
         let callCount = 0;
         
         connection.query.mockImplementation((query, params, callback) => {
-            // Handle case where params is actually the callback (no params provided)
-            if (typeof params === 'function') {
-                callback = params;
-                params = undefined;
-            }
-            
             callCount++;
             
-            if (query.includes('Select balance from User')) {
+            if (query.includes('SELECT balance FROM User WHERE user_id = ?')) {
                 // 1. Get user balance
                 callback(null, [{ balance: 100 }]);
-            } else if (query.includes('UPDATE User SET balance')) {
+            } else if (query.includes('UPDATE User SET balance = balance - ? WHERE user_id = ?')) {
                 // 2. Update user balance (deduct cost)
                 callback(null, { affectedRows: 1 });
             } else if (query.includes('SELECT * FROM Card')) {
                 // 3. Get all cards for random selection
                 callback(null, cards);
-            } else if (query.includes('Select * from User_Cards where')) {
+            } else if (query.includes('SELECT * FROM User_Cards WHERE user_id = ? AND card_id = ?')) {
                 // 4, 6, 8. Check if user already has each card (3 times)
                 callback(null, []); // User doesn't have any of the cards yet
-            } else if (query.includes('INSERT INTO User_Cards')) {
+            } else if (query.includes('INSERT INTO User_Cards (user_id, card_id, card_count) VALUES (?, ?, 1)')) {
                 // 5, 7, 9. Insert each new card into user's collection (3 times)
                 callback(null, { insertId: callCount });
             } else {
@@ -111,15 +237,12 @@ describe('ShopService.openPack', () => {
 
         const result = await shopService.openPack({ type: 2, cost: 20 }, userId);
         
-        // Verify the result
         expect(result).toHaveLength(3);
         result.forEach(card => {
             expect(card).toHaveProperty('card_name');
             expect(['CardA', 'CardB', 'CardC']).toContain(card.card_name);
         });
         
-        // Verify expected number of database calls:
-        // 1 balance check + 1 balance update + 1 get cards + 3 check existing + 3 insert = 9 calls
         expect(connection.query).toHaveBeenCalledTimes(9);
     });
 
@@ -127,24 +250,18 @@ describe('ShopService.openPack', () => {
         let callCount = 0;
         
         connection.query.mockImplementation((query, params, callback) => {
-            // Handle case where params is actually the callback (no params provided)
-            if (typeof params === 'function') {
-                callback = params;
-                params = undefined;
-            }
-            
             callCount++;
             
-            if (query.includes('Select balance from User')) {
+            if (query.includes('SELECT balance FROM User WHERE user_id = ?')) {
                 callback(null, [{ balance: 100 }]);
-            } else if (query.includes('UPDATE User SET balance')) {
+            } else if (query.includes('UPDATE User SET balance = balance - ? WHERE user_id = ?')) {
                 callback(null, { affectedRows: 1 });
             } else if (query.includes('SELECT * FROM Card')) {
                 callback(null, cards);
-            } else if (query.includes('Select * from User_Cards where')) {
+            } else if (query.includes('SELECT * FROM User_Cards WHERE user_id = ? AND card_id = ?')) {
                 // User already has this card
                 callback(null, [{ user_id: userId, card_id: 10, card_count: 2 }]);
-            } else if (query.includes('UPDATE User_Cards SET card_count')) {
+            } else if (query.includes('UPDATE User_Cards SET card_count = card_count + 1 WHERE user_id = ? AND card_id = ?')) {
                 // Increment existing card count
                 callback(null, { affectedRows: 1 });
             } else {
@@ -154,12 +271,8 @@ describe('ShopService.openPack', () => {
 
         const result = await shopService.openPack({ type: 1, cost: 10 }, userId);
         
-        // Verify the result
         expect(result).toHaveLength(1);
         expect(result[0]).toHaveProperty('card_name');
-        
-        // Verify expected number of database calls:
-        // 1 balance check + 1 balance update + 1 get cards + 1 check existing + 1 update count = 5 calls
         expect(connection.query).toHaveBeenCalledTimes(5);
     });
 
@@ -168,21 +281,15 @@ describe('ShopService.openPack', () => {
         let existingCheckCount = 0;
         
         connection.query.mockImplementation((query, params, callback) => {
-            // Handle case where params is actually the callback (no params provided)
-            if (typeof params === 'function') {
-                callback = params;
-                params = undefined;
-            }
-            
             callCount++;
             
-            if (query.includes('Select balance from User')) {
+            if (query.includes('SELECT balance FROM User WHERE user_id = ?')) {
                 callback(null, [{ balance: 100 }]);
-            } else if (query.includes('UPDATE User SET balance')) {
+            } else if (query.includes('UPDATE User SET balance = balance - ? WHERE user_id = ?')) {
                 callback(null, { affectedRows: 1 });
             } else if (query.includes('SELECT * FROM Card')) {
                 callback(null, cards);
-            } else if (query.includes('Select * from User_Cards where')) {
+            } else if (query.includes('SELECT * FROM User_Cards WHERE user_id = ? AND card_id = ?')) {
                 existingCheckCount++;
                 if (existingCheckCount === 1) {
                     // First card - user already has it
@@ -191,10 +298,10 @@ describe('ShopService.openPack', () => {
                     // Second and third cards - user doesn't have them
                     callback(null, []);
                 }
-            } else if (query.includes('UPDATE User_Cards SET card_count')) {
+            } else if (query.includes('UPDATE User_Cards SET card_count = card_count + 1 WHERE user_id = ? AND card_id = ?')) {
                 // Increment existing card count
                 callback(null, { affectedRows: 1 });
-            } else if (query.includes('INSERT INTO User_Cards')) {
+            } else if (query.includes('INSERT INTO User_Cards (user_id, card_id, card_count) VALUES (?, ?, 1)')) {
                 // Insert new cards
                 callback(null, { insertId: callCount });
             } else {
@@ -204,15 +311,12 @@ describe('ShopService.openPack', () => {
 
         const result = await shopService.openPack({ type: 2, cost: 20 }, userId);
         
-        // Verify the result
         expect(result).toHaveLength(3);
         result.forEach(card => {
             expect(card).toHaveProperty('card_name');
             expect(['CardA', 'CardB', 'CardC']).toContain(card.card_name);
         });
         
-        // Verify expected number of database calls:
-        // 1 balance check + 1 balance update + 1 get cards + 3 check existing + 1 update + 2 insert = 9 calls
         expect(connection.query).toHaveBeenCalledTimes(9);
     });
 
@@ -220,22 +324,16 @@ describe('ShopService.openPack', () => {
         let balanceUpdateParams = [];
         
         connection.query.mockImplementation((query, params, callback) => {
-            // Handle case where params is actually the callback (no params provided)
-            if (typeof params === 'function') {
-                callback = params;
-                params = undefined;
-            }
-            
-            if (query.includes('Select balance from User')) {
+            if (query.includes('SELECT balance FROM User WHERE user_id = ?')) {
                 callback(null, [{ balance: 100 }]);
-            } else if (query.includes('UPDATE User SET balance')) {
+            } else if (query.includes('UPDATE User SET balance = balance - ? WHERE user_id = ?')) {
                 balanceUpdateParams = params;
                 callback(null, { affectedRows: 1 });
             } else if (query.includes('SELECT * FROM Card')) {
                 callback(null, cards);
-            } else if (query.includes('Select * from User_Cards where')) {
+            } else if (query.includes('SELECT * FROM User_Cards WHERE user_id = ? AND card_id = ?')) {
                 callback(null, []);
-            } else if (query.includes('INSERT INTO User_Cards')) {
+            } else if (query.includes('INSERT INTO User_Cards (user_id, card_id, card_count) VALUES (?, ?, 1)')) {
                 callback(null, { insertId: 1 });
             } else {
                 callback(null, []);
