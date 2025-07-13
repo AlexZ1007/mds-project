@@ -179,26 +179,27 @@ class ShopService {
 
 
     async predictPrice(card_id) {
-        // Fetch card features from DB
-        const cardResults = await queryAsync(
-            `SELECT level, damage, HP_points, mana_points FROM Card WHERE card_id = ?`,
-            [card_id]
-        );
-        if (!cardResults.length) throw new Error('Card not found.');
-        const card = cardResults[0];
-        try {
-            const response = await axios.post('http://localhost:5001/predict', {
-                level: card.level,
-                damage: card.damage,
-                HP_points: card.HP_points,
-                mana_points: card.mana_points,
-                sold: 0,
-                time_on_market: 0
-            });
-            return { predicted_price: response.data.predicted_price };
-        } catch (e) {
-            throw new Error('Prediction service unavailable.');
-        }
+        return 0;
+        // // Fetch card features from DB
+        // const cardResults = await queryAsync(
+        //     `SELECT level, damage, HP_points, mana_points FROM Card WHERE card_id = ?`,
+        //     [card_id]
+        // );
+        // if (!cardResults.length) throw new Error('Card not found.');
+        // const card = cardResults[0];
+        // try {
+        //     const response = await axios.post('http://localhost:5001/predict', {
+        //         level: card.level,
+        //         damage: card.damage,
+        //         HP_points: card.HP_points,
+        //         mana_points: card.mana_points,
+        //         sold: 0,
+        //         time_on_market: 0
+        //     });
+        //     return { predicted_price: response.data.predicted_price };
+        // } catch (e) {
+        //     throw new Error('Prediction service unavailable.');
+        // }
     }
 }
 

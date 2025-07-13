@@ -41,14 +41,14 @@ io.use((socket, next) => {
   }
 });
 
-// 🚀 Start Python ML API
-const pythonApi = spawn('python', ['services/ml/price_api.py'], {
-  stdio: 'inherit',
-});
+// // 🚀 Start Python ML API
+// const pythonApi = spawn('python', ['services/ml/price_api.py'], {
+//   stdio: 'inherit',
+// });
 
-pythonApi.on('close', (code) => {
-  console.log(`Python ML API exited with code ${code}`);
-});
+// pythonApi.on('close', (code) => {
+//   console.log(`Python ML API exited with code ${code}`);
+// });
 
 const match_queue = [];
 const lobbies = {};
